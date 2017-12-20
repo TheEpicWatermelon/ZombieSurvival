@@ -26,12 +26,12 @@ class Server {
     private static final int COMMAND_LEN = 3;// length of the command - default length is 3
     private static final String COMMAND_QUIT = "svt"; // command for user disconnect
     private static final String COMMAND_NEW = "svn";// command used when user first joins the server
-    private static final String COMMAND_MSG = "msg"; // command when user wants to send a msg to another user
-    private static final String UPDATE_USER_COMMAND = "upd"; // command that will be sent to all users stating that there is a new user connected
-    private static final String PRIVATE_MSG_COMMAND = "pmg"; // private message command
-    private static final String SERVER_MSG = "smg";
-    private static final String KICK_COMMAND = "kck";
-    private static final String PREVIOUS_CHAT = "pvc";
+    private static final String COMMAND_MESSAGE = "msg"; // command when user wants to send a msg to another user
+    private static final String COMMAND_ACCEPT = "sap";// will be sent to a connected user if they have been accepted on to the server
+    private static final String COMMAND_DECLINE = "sde"; // will be sent to a connected user if they are not allowed to join the server
+    private static final String COMMAND_UPDATE_USER = "sud"; // command that will be accompanied by a list of all the users on the server
+    private static final String GAME_START = "gst"; // user calls this to start the game
+    private static final String GAME_END = "ged"; // user calls this to end the game
     private static GUI GUI; // GUI
     volatile static String serverIn; // string that will hold the console input
     private static StringBuilder previousChat;
@@ -135,7 +135,7 @@ class Server {
             this.user = null;
             try{
                 this.output = new PrintWriter(client.getOutputStream());
-                write("too many players");// place holder
+                write(COMMAND_DECLINE);
                 close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -162,9 +162,22 @@ class Server {
 
                         // if the user sends a disconnect
                         if (userInput.startsWith(COMMAND_QUIT)) {
-                            writeToUsers("DISCONNECTED",0);// placeholder
+                            writeToUsers(COMMAND_MESSAGE+0+ user.getName() + " has disconnected");// placeholder
                             running = false; //stop receiving messages
-                        } else {
+                        }else if(userInput.startsWith(COMMAND_NEW)){
+                            write(COMMAND_ACCEPT);
+                            user.setName(userInput.substring(COMMAND_LEN));
+                            user.setListNum(connectionHandlers.size());
+                            GUI.appendToConsole("User "+ user.getListNum() + " name set: " + user.getName());
+                            updateUserList();
+                            writeToUsers(COMMAND_MESSAGE +0+ user.getName() + " has connected");
+                        }else if(userInput.startsWith(COMMAND_MESSAGE)){
+                            String msg = userInput.substring(COMMAND_LEN);
+                            String send = COMMAND_MESSAGE + user.getListNum() + msg;
+                            writeToUsers(send);
+                            GUI.appendToConsole(user.getListNum() + ":" + user.getName()+" sent message: " + send);
+                        }
+                        else {
                             output.println("err Command Not Available");
                             output.flush();
                         }
@@ -205,7 +218,7 @@ class Server {
          */
         private void updateUserList() {
             StringBuilder string = new StringBuilder();
-            string.append(UPDATE_USER_COMMAND); // start with the update user command
+            string.append(COMMAND_UPDATE_USER); // start with the update user command
             for (int i = 0; i < connectionHandlers.size(); i++) {
                 if (i < connectionHandlers.size()-1){// if this is not the last user add a comma
                     string.append(connectionHandlers.get(i).user.getName()+",");
@@ -213,16 +226,15 @@ class Server {
                     string.append(connectionHandlers.get(i).user.getName());
                 }
             }
-            writeToUsers(string.toString(), 0);
+            writeToUsers(string.toString());
         }
 
         /**
          * writeToUser
          * write to users, can be to general chat or via private message, message will be sent to the sender as well to confirm that their message has gone through the server
          * @param msg - message user wants to send
-         * @param sender - sender of the message
          */
-        private void writeToUsers(String msg, int sender) {
+        private void writeToUsers(String msg) {
             for (int i = 0; i < connectionHandlers.size(); i++) {
                 connectionHandlers.get(i).write(msg);// write the message to every user
             }
@@ -268,7 +280,7 @@ class Server {
                 }
                 if (serverIn.equals("close")) {// shuts down server
                     for (int i = 0; i < connectionHandlers.size(); i++) {// send message to every user that server is closing
-                        connectionHandlers.get(i).write(SERVER_MSG + "~~SERVER CLOSING IN 20 SECONDS~~");
+                        connectionHandlers.get(i).write(COMMAND_MESSAGE + "~~SERVER CLOSING IN 20 SECONDS~~");
                         connectionHandlers.get(i).write(COMMAND_QUIT);
                     }
                     GUI.appendToConsole("Shutting down server...");
@@ -321,8 +333,8 @@ class Server {
                         continue;
                     }
                     // send out that user has been kicked
-                    connectionHandler.writeToUsers("kick test", 0);// place holder
-                    connectionHandler.write(KICK_COMMAND);
+                    connectionHandler.writeToUsers(COMMAND_MESSAGE+0+connectionHandler.user.getName() + " has been kicked");// place holder
+                    connectionHandler.write("You have been kicked");
                     connectionHandler.running = false; // stop user's connection handler
                     GUI.appendToConsole("Kicked user: " + kickNum + " - " + connectionHandler.user.getName());
                     serverIn = null;
@@ -343,7 +355,7 @@ class Server {
                     GUI.appendToConsole(listOfMembers.toString());
                     serverIn = null;
                 } else if (serverIn.startsWith("broadcast")) {// broadcast a message to general chat
-                    String msg = SERVER_MSG + serverIn.substring(9);// add command and get the message, substring first 9 characters of serverIn to remove broadcast
+                    String msg = COMMAND_MESSAGE + serverIn.substring(9);// add command and get the message, substring first 9 characters of serverIn to remove broadcast
                     for (int i = 0; i < connectionHandlers.size(); i++) {// send to each user
                         connectionHandlers.get(i).write(msg);
                     }
