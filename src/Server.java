@@ -30,6 +30,7 @@ class Server {
     private static final String COMMAND_ACCEPT = "sap";// will be sent to a connected user if they have been accepted on to the server
     private static final String COMMAND_DECLINE = "sde"; // will be sent to a connected user if they are not allowed to join the server
     private static final String COMMAND_UPDATE_USER = "sud"; // command that will be accompanied by a list of all the users on the server
+    private static final String COMMAND_KICK = "kck";//sent to user that is being kicked
     private static final String GAME_START = "gst"; // user calls this to start the game
     private static final String GAME_END = "ged"; // user calls this to end the game
     private static GUI GUI; // GUI
@@ -135,6 +136,8 @@ class Server {
             this.user = null;
             try{
                 this.output = new PrintWriter(client.getOutputStream());
+                InputStreamReader stream = new InputStreamReader(client.getInputStream());
+                this.input = new BufferedReader(stream);
                 write(COMMAND_DECLINE);
                 close();
             } catch (IOException e) {
@@ -201,7 +204,7 @@ class Server {
          * remove user from the list of user's and the user's connection handler
          */
         private void updateUserRemoved() {
-            GUI.appendToConsole(user.getListNum() + "- disconnecting");
+            //GUI.appendToConsole(user.getListNum() + "- disconnecting");
 
             users.remove(user);
             connectionHandlers.remove(this);
@@ -334,7 +337,7 @@ class Server {
                     }
                     // send out that user has been kicked
                     connectionHandler.writeToUsers(COMMAND_MESSAGE+0+connectionHandler.user.getName() + " has been kicked");// place holder
-                    connectionHandler.write("You have been kicked");
+                    connectionHandler.write(COMMAND_KICK);
                     connectionHandler.running = false; // stop user's connection handler
                     GUI.appendToConsole("Kicked user: " + kickNum + " - " + connectionHandler.user.getName());
                     serverIn = null;
