@@ -497,7 +497,7 @@ public class GameMap {
         return moves;
     }
 
-    private ZombieMove moveZombie(Zombie zombie) {
+    public ZombieMove moveZombie(Zombie zombie) {
         ZombieMove move = new ZombieMove();
         int actions = zombie.getSpeed(); // number of actions the zombie has
         boolean moved;
@@ -511,16 +511,63 @@ public class GameMap {
                 break;// no more moves after an attack
             }// if there is no player next to zombie, check if a player is within 10 squares of a zombie
             User user = nearestPlayer(zombie);
-            if (user != null){
-                moveZombieTowards(user,zombie);
+            if (user != null){// if a user is within sight range of zombie
+                Coord coords = moveZombieTowards(user,zombie);
+                if (coords.x == -1){// no available moves
+                    break;
+                }else{// if there is a valid move, register the move
+                    move.move.add(coords);
+                    zombie.setxCoord(coords.x);
+                    zombie.setyCoord(coords.y);
+                    actions --;
+                    continue;
+                }
+            }else {// else the zombie does a random move
+                Coord coords = randomZombieMove(zombie);
+                if (coords.x == -1){// no available moves
+                    break;
+                }else{
+                    move.move.add(coords);
+                    zombie.setxCoord(coords.x);
+                    zombie.setyCoord(coords.y);
+                    actions--;
+                    continue;
+                }
+
             }
-
         }
-
         return move;
     }
 
-    private void moveZombieTowards(User user, Zombie zombie) {
+    private Coord randomZombieMove(Zombie zombie) {
+
+        List<Coord> possibleMoves = new ArrayList<>();
+
+        if ( canMoveTo(zombie.getxCoord()-1,zombie.getyCoord()) ){
+            possibleMoves.add(new Coord(zombie.getxCoord()-1, zombie.getyCoord()));
+        }// check up
+        if ( canMoveTo(zombie.getxCoord(), zombie.getyCoord()+1) ){
+            possibleMoves.add(new Coord(zombie.getxCoord(), zombie.getyCoord()-1));
+        }// check right
+        if ( canMoveTo(zombie.getxCoord()+1, zombie.getyCoord()) ){
+            possibleMoves.add(new Coord(zombie.getxCoord()+1, zombie.getyCoord()));
+        }// check down
+        if ( canMoveTo(zombie.getxCoord(),zombie.getyCoord()+1) ){
+            possibleMoves.add(new Coord(zombie.getxCoord(),zombie.getyCoord()+1));
+        }
+
+        // check if there are possible moves
+        if (possibleMoves.size() == 0){
+            return new Coord(-1,-1);
+        }
+
+        // else just pick a random move
+        int randomNum = random.nextInt(possibleMoves.size());
+        // return the moves
+        return possibleMoves.get(randomNum);
+    }
+
+    private Coord moveZombieTowards(User user, Zombie zombie) {
         // 4 possible ways to move to
         // arrange them in the order of best to worst
         // iterate in order, pick first that you could move to
@@ -540,6 +587,24 @@ public class GameMap {
         if ( canMoveTo(zombie.getxCoord(),zombie.getyCoord()+1) ){
             possibleMoves.add(new Coord(zombie.getxCoord(),zombie.getyCoord()+1));
         }
+
+        if (possibleMoves.size() == 0){// if there are no possible moves
+            return new Coord(-1,-1);// since they are both -1 that means there are no valid moves
+        }
+
+        double smallestDistance = mapXDimension + 1;
+        int index = -1;
+        // loop through all the possible moves and calculate the distance
+        for (int i = 0; i < possibleMoves.size(); i++) {
+            double distance = Math.sqrt(Math.pow(possibleMoves.get(i).x + user.getxCoord(), 2) + Math.pow(possibleMoves.get(i).y + user.getyCoord(), 2));// use distance formulate to calculate distance
+            if (distance < smallestDistance){// if distance calculated is smaller than smallest distance already calculated
+                smallestDistance = distance;// set smallest distance to that distance
+                index = i;// get the index for return
+            }
+        }
+
+        // give best move
+        return possibleMoves.get(index);
 
     }
 

@@ -68,4 +68,21 @@ public class GameMapTest {
         Assert.assertEquals(0,users.size());
     }
 
+    @Test
+    public void zombieMove() throws Exception{
+        GameMap map = new GameMap();
+
+
+        Zombie zombie = new RegularZombie(2,2);
+
+        ZombieMove move = map.moveZombie(zombie);
+
+        for (int i = 0; i < move.move.size() ; i++) {
+            System.out.println(move.move.get(i).x + " - " + move.move.get(i).y);
+
+        }
+
+
+    }
+
 }
