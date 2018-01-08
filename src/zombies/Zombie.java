@@ -26,13 +26,13 @@ public abstract class Zombie {
         this.yCoord = yCoord;
     }
 
-    public void attackPlayer(User user){// TODO IMPLEMENT WEAPONS
-        int randNum = random.nextInt(61) + 40;// get a random number for 0-100, this will be used to see if the player avoids the attack or not
-        if (randNum < user.getEvasiveness()){// if user evades the attack then do nothing
+    public void attackPlayer(User user){
+        int randNum = random.nextInt(101) + 40;// get a random number for 0-100, this will be used to see if the player avoids the attack or not
+        if (randNum < user.getEvasiveness() + user.getInventory().get(0).attack){// if user evades the attack then do nothing, get this by adding user evasiveness stat and user weapon defense stat together
             return;
         }// if zombie successfully attacks the user calculate the damage
         int potentialAttackDamage = random.nextInt(attackValue - Math.min(21, attackValue)) + 20;// always a minimum of 20 attack damage
-        int potentialDefense = random.nextInt(user.getMeleeDefense()- Math.min(21,user.getMeleeDefense())) + 20;// always a minimum of 20 defense
+        int potentialDefense = random.nextInt(user.getMeleeDefense() - Math.min(21,user.getMeleeDefense())) + 20;// always a minimum of 20 defense. defense is calculated by user defense stat
         int attackValue = potentialAttackDamage - potentialDefense;
         if (attackValue <= 0){// if attack value is less than or equal to zero, don't do anything
             return;
