@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Rifle extends Weapon {
 
-    Rifle(){// default rifle
+    public Rifle(){// default rifle
         super("Rifle");
         attack = 70;
         defense = 10;

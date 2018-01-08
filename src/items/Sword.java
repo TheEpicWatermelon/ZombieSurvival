@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Sword extends Weapon {
 
-    Sword(){// base level sword(the one you get at the start of the game
+    public Sword(){// base level sword(the one you get at the start of the game
         super("Sword");
         attack = 50;
         defense = 50;

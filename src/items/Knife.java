@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Knife extends Weapon {
 
-    Knife(){// default items.Knife
+    public Knife(){// default items.Knife
         super("Knife");
         attack = 60;
         defense = 5;

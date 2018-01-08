@@ -7,7 +7,7 @@ import java.util.Random;
  */
 public class Hammer extends Weapon {
 
-    Hammer() {// default items.Hammer
+    public Hammer() {// default items.Hammer
         super("Hammer");
         attack = 10;
         defense = 10;
