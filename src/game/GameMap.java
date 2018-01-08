@@ -24,13 +24,13 @@ public class GameMap {
         int cobbleGroups = random.nextInt(6) + 15;
         int fenceGroups = random.nextInt(6) + 8;
         int houses = random.nextInt(6)+5;
-        int chests = random.nextInt(11)+10;
+        //int chests = random.nextInt(11)+10;
 
         addTrees(treeGroups);
         addCobbleStone(cobbleGroups);
         addFences(fenceGroups);
         addHouses(houses);
-        addChests(chests);
+        //addChests(chests);
     }
 
     public void addUser(User user){
@@ -458,9 +458,6 @@ public class GameMap {
     }
 
     public User nearestPlayer(Zombie zombie){
-        int[] playerCoords = new int[2];
-        playerCoords[0] = -1; // will not change if a player is not found
-
         double minDistance = mapXDimension + 1;
         User closestPlayer = null;
 
@@ -500,9 +497,8 @@ public class GameMap {
     public ZombieMove moveZombie(Zombie zombie) {
         ZombieMove move = new ZombieMove();
         int actions = zombie.getSpeed(); // number of actions the zombie has
-        boolean moved;
+        move.move.add(new Coord(zombie.getxCoord(),zombie.getyCoord()));// the first values in the move are the zombie's initial coordinates
         while(actions > 0){
-            moved = false;
             List<User> users = playersNextTo(zombie);// get a list of users that are adjacent to the zombie
             if (users.size() > 0){// if there are users next to zombie, randomly pick one to attack
                 int index = random.nextInt(users.size());// pick a random user to attack
