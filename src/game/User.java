@@ -1,6 +1,6 @@
 package game;
 
-import items.Item;
+import items.*;
 import zombies.Zombie;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class User {
     private int listNum;// user's list number
     private int xCoord;
     private int yCoord;
-    private List<Item> inventory;
+    private List<Weapon> inventory;
     private int currentItem;
     private String playerClass;
     private int kills;
@@ -56,13 +56,18 @@ public class User {
         this.xCoord = xCoord;
     }
 
-    public void attackZombie(Zombie zombie, boolean ranged){// TODO IMPLEMENT WEAPONS
-        int randNum = random.nextInt(51) + 50;// get a random number for 0-100, this will be used to see if the player avoids the attack or not
-        if (randNum < zombie.getEvasiveness()){// if user evades the attack then do nothing
+    public void attackZombie(Zombie zombie, boolean ranged){
+        int randNum;
+        if (ranged){// if this is a range attack, check hit chance by range skill
+            randNum = random.nextInt(rangedAttack) + 50;// get a random number for 0-100, this will be used to see if the player avoids the attack or not
+        }else{// if this is a melee attack, check hit chance by melee skill
+            randNum = random.nextInt(meleeAttack) + 50;// get a random number for 0-100, this will be used to see if the player avoids the attack or not
+        }
+        if (randNum < zombie.getEvasiveness()){// if zombie evades the attack then do nothing
             return;
         }
         if (ranged){// if user uses ranged weapon
-            int potentialAttackDamage = random.nextInt(rangedAttack - Math.min(20, rangedAttack)+1) + 20;// always a minimum of 20 attack damage
+            int potentialAttackDamage = random.nextInt( inventory.get(0).attack - Math.min(20, rangedAttack)+1) + 20;// always a minimum of 20 attack damage
             int potentialDefense = random.nextInt(zombie.getDefenseValue()- Math.min(21,zombie.getDefenseValue()) + 20);// always a minimum of 20 defense
             int attackValue = potentialAttackDamage - potentialDefense;
             if (attackValue <= 0){// if attack value is less than or equal to zero, don't do anything
@@ -71,7 +76,7 @@ public class User {
                 zombie.setHealth(zombie.getHealth() - attackValue);
             }
         }else{// if user uses melee attack
-            int potentialAttackDamage = random.nextInt(meleeAttack - Math.min(20, meleeAttack) + 1) + 20;// always a minimum of 20 attack damage
+            int potentialAttackDamage = random.nextInt(inventory.get(0).attack - Math.min(20, meleeAttack) + 1) + 20;// always a minimum of 20 attack damage
             int potentialDefense = random.nextInt(zombie.getDefenseValue()- Math.min(21,zombie.getDefenseValue()) + 20);// always a minimum of 20 defense
             int attackValue = potentialAttackDamage - potentialDefense;
             if (attackValue <= 0){// if attack value is less than or equal to zero, don't do anything
@@ -248,11 +253,11 @@ public class User {
         this.yCoord = yCoord;
     }
 
-    public List<Item> getInventory() {
+    public List<Weapon> getInventory() {
         return inventory;
     }
 
-    public void setInventory(List<Item> inventory) {
+    public void setInventory(List<Weapon> inventory) {
         this.inventory = inventory;
     }
 
@@ -314,6 +319,9 @@ public class User {
 
     public void setClass(int classIndex){
         if (classIndex == 0){// set scout
+            if (inventory.size() == 1){// remove previous item
+                inventory.remove(0);
+            }
             playerClass = "Scout";
             health = 60;
             meleeAttack = 70;
@@ -323,7 +331,11 @@ public class User {
             speed = 6;
             crafting = 30;
             builder = 30;
+            inventory.add(new Knife());
         }else if(classIndex == 1){// set sniper
+            if (inventory.size() == 1){// remove previous item
+                inventory.remove(0);
+            }
             playerClass = "Sniper";
             health = 50;
             meleeAttack = 40;
@@ -333,7 +345,11 @@ public class User {
             speed = 4;
             crafting = 50;
             builder = 50;
+            inventory.add(new Rifle());
         }else if (classIndex == 2){// set thief
+            if (inventory.size() == 1){// remove previous item
+                inventory.remove(0);
+            }
             playerClass = "Thief";
             health = 40;
             meleeAttack = 60;
@@ -343,7 +359,11 @@ public class User {
             speed = 4;
             crafting = 30;
             builder = 30;
+            inventory.add(new Pistol());
         }else if(classIndex == 3){ // set mechanic
+            if (inventory.size() == 1){// remove previous item
+                inventory.remove(0);
+            }
             playerClass = "Mechanic";
             health = 50;
             meleeAttack = 40;
@@ -353,7 +373,11 @@ public class User {
             speed = 4;
             crafting = 70;
             builder = 70;
+            inventory.add(new Hammer());
         }else if(classIndex == 4){ // set tank
+            if (inventory.size() == 1){// remove previous item
+                inventory.remove(0);
+            }
             playerClass = "Tank";
             health = 100;
             meleeAttack = 70;
@@ -363,6 +387,7 @@ public class User {
             speed = 4;
             crafting = 20;
             builder = 20;
+            inventory.add(new Sword());
         }
     }
 
