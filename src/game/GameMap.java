@@ -1,5 +1,8 @@
 package game;
 
+import zombies.QuickZombie;
+import zombies.RegularZombie;
+import zombies.ToughZombie;
 import zombies.Zombie;
 
 import java.util.*;
@@ -13,7 +16,7 @@ public class GameMap {
 
     private final int mapXDimension = 50;
     private final int mapYDimension = 50;
-    private List<User> users = new ArrayList<>();
+    private List<User> users = Collections.synchronizedList(new ArrayList<>());
     private List<Zombie> zombies = new ArrayList<>();
     private final Random random = new Random();
 
@@ -33,8 +36,99 @@ public class GameMap {
         //addChests(chests);
     }
 
+    public List<Zombie> getZombies(){
+        return zombies;
+    }
+
     public void addUser(User user){
         users.add(user);
+    }
+
+    public void placeUsers(){
+
+    }
+
+    public void placeZombies(int wave) {
+        int numberOfZombies = wave * 4;
+        int numRegularZombies = numberOfZombies /2;// half of the zombies will be regular
+        int numQuickZombies = numRegularZombies/2; // quarter of the zombies will be quick
+        int numToughZombies = numRegularZombies/2;// quarter of the zombies will be tough
+
+        // place regular zombies first
+        for (int i = 0; i < numRegularZombies; i++) {
+            int spawnSide = random.nextInt(3); // pick a random spawn side for the zombie, 0 top, 1 right, 2 bottom, 3 left
+            Coord coords = findValidZombieSpawn(spawnSide);
+            addZombie(new RegularZombie(coords.x, coords.y));
+        }
+
+        // place quick zombies
+        for (int i = 0; i < numQuickZombies; i++) {
+            int spawnSide = random.nextInt(3); // pick a random spawn side for the zombie, 0 top, 1 right, 2 bottom, 3 left
+            Coord coords = findValidZombieSpawn(spawnSide);
+            addZombie(new QuickZombie(coords.x, coords.y));
+        }
+
+        // place tough zombies
+        for (int i = 0; i < numToughZombies; i++) {
+            int spawnSide = random.nextInt(3); // pick a random spawn side for the zombie, 0 top, 1 right, 2 bottom, 3 left
+            Coord coords = findValidZombieSpawn(spawnSide);
+            addZombie(new ToughZombie(coords.x, coords.y));
+        }
+
+    }
+
+    private Coord findValidZombieSpawn(int side){
+        Coord possibleCoords;
+        do{
+            possibleCoords = getRandomZombieSpawnCoords(side);
+
+        }while(!checkForValidSpawn(possibleCoords));
+
+        return possibleCoords;
+    }
+
+    private boolean checkForValidSpawn(Coord coords){
+        boolean canMove = false;
+        // check all 4 directions if zombie can move there
+        // check left
+        if ( canMoveTo(coords.x-1,coords.y) ){
+            canMove = true;
+        }// check up
+        if ( canMoveTo(coords.x, coords.y+1) ){
+            canMove = true;
+        }// check right
+        if ( canMoveTo(coords.x+1, coords.y) ){
+            canMove = true;
+        }// check down
+        if ( canMoveTo(coords.x,coords.y+1) ){
+            canMove = true;
+        }
+        return canMove;
+    }
+
+    private Coord getRandomZombieSpawnCoords(int side){
+        int spawnXCoordinates = -1;
+        int spawnYCoordinates = -1;
+        switch(side){
+            case 0:
+                spawnXCoordinates = random.nextInt(mapXDimension);
+                spawnYCoordinates = 0;
+                break;
+            case 1:
+                spawnXCoordinates = mapXDimension -1;
+                spawnYCoordinates = random.nextInt(mapYDimension);
+                break;
+            case 2:
+                spawnXCoordinates = random.nextInt(mapXDimension);
+                spawnYCoordinates = mapYDimension -1;
+                break;
+            case 3:
+                spawnXCoordinates = 0;
+                spawnYCoordinates = random.nextInt(mapYDimension);
+                break;
+        }
+
+        return new Coord(spawnXCoordinates,spawnYCoordinates);
     }
 
     public void addZombie(Zombie zombie){

@@ -47,7 +47,6 @@ public class User {
     private int building = 0;// index 4 when upgrading
 
     public User(){
-
     }
 
     public User(String name, int yCoord, int xCoord){
