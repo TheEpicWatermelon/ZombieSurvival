@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.BorderLayout;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.awt.Color;
+import java.awt.Component;
 
 /**
  * ClientLogin.java
@@ -33,7 +35,11 @@ public class ClientLogin {
 	private JButton connectButton;
 	JFrame loginWindow;
 	
-	// debugging private static final String COMMAND_NEW = "svn";
+	private static final String COMMAND_NEW = "svn";
+	private static final String COMMAND_ACCEPT = "sap";// sent to client from server saying if they have been accepted or not
+	private static final String COMMAND_DECLINE = "sde";// sent to client from server saying if they have been rejected from the game or not
+	
+	boolean running = true;	
   
   /**
    * @param args
@@ -158,9 +164,24 @@ public class ClientLogin {
           InputStreamReader stream = new InputStreamReader(mySocket.getInputStream());
           BufferedReader input = new BufferedReader(stream);
           PrintWriter output = new PrintWriter(mySocket.getOutputStream());
-          //new Client(mySocket, input, output, usernameTF.getText());
-          // debugging output.println(COMMAND_NEW+usernameTF.getText());
-          // debugging output.flush();
+          output.println(COMMAND_NEW+usernameTF.getText());
+          output.flush();
+          String message ="";
+          while(running) {
+        	 if (input.ready()) {
+        		 message = input.readLine();
+        		 running = false;
+        	 }
+          }
+          if (message.startsWith(COMMAND_ACCEPT)) {
+        	  System.out.println("accepted");
+          new Client(mySocket, input, output, usernameTF.getText());
+          }else if (message.startsWith(COMMAND_DECLINE)) {
+			JOptionPane.showMessageDialog(loginWindow,"The amount of users that have connected \nto the server has exceeded 4 people ", "Inane error", JOptionPane.ERROR_MESSAGE);
+			mySocket.close();
+			input.close();
+			output.close();
+          }
           
           loginWindow.dispose();
         } catch (IOException e) {
