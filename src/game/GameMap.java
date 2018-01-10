@@ -45,7 +45,28 @@ public class GameMap {
     }
 
     public void placeUsers(){
+        // loop through all the users
+        for(User user: users){
+            Coord coords = findValidUserSpawn();
+            user.setxCoord(coords.x);
+            user.setyCoord(coords.y);
+        }
 
+    }
+
+    private Coord findValidUserSpawn() {
+        Coord possibleCoords;
+        do{
+            possibleCoords = getRandomUserCoords();
+        }while (checkForValidSpawn(possibleCoords));
+
+        return possibleCoords;
+    }
+
+    public Coord getRandomUserCoords() {
+        int randx = random.nextInt(8)+1;// pick random distance from middle in x direction
+        int randy = random.nextInt(8) + 1;// pick random distance from middle in y direction
+        return new Coord(mapXDimension/2 + randx, mapYDimension/2 + randy);// return the coordinates for that random position near the middle of the map;
     }
 
     public void placeZombies(int wave) {
@@ -89,8 +110,15 @@ public class GameMap {
 
     private boolean checkForValidSpawn(Coord coords){
         boolean canMove = false;
-        // check all 4 directions if zombie can move there
-        // check left
+        for (User user: users){
+            if(user.getxCoord() == coords.x && user.getyCoord() == coords.y){// check if coordinate already has a user on it
+                return false; // return false if there is a user on those coordinates
+            }
+        }
+        // check if able to spawn at coordinates(can only spawn on grass)
+        if(mapTiles[coords.y][coords.x].getTileType() != 0){
+            return false;
+        }// check left
         if ( canMoveTo(coords.x-1,coords.y) ){
             canMove = true;
         }// check up

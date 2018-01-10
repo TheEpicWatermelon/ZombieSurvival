@@ -12,11 +12,13 @@ public class Game {
     private List<Zombie> zombies = new ArrayList<>();
     private GameMap map;
     private int wave;
+    private int turn;
 
     // constructor
     Game(List<User> users){
         map = new GameMap();
         wave = 1;
+        turn = 1;
         this.users = users;
         for(User user: this.users){
             map.addUser(user);
