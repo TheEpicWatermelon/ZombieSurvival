@@ -11,7 +11,7 @@ public class Hammer extends Weapon {
         super("Hammer");
         attack = 10;
         defense = 10;
-        range = 1;
+        range = Math.sqrt(2);
     }
 
     @Override

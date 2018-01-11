@@ -11,7 +11,7 @@ public class Sword extends Weapon {
         super("Sword");
         attack = 50;
         defense = 50;
-        range = 1;
+        range = Math.sqrt(2);// the range is root 2 because then you can attack zombies diagonally
     }
 
     @Override

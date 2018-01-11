@@ -11,7 +11,7 @@ public class Axe extends Weapon {
         super("Axe");
         attack = 40;
         defense = 20;
-        range = 1;
+        range = Math.sqrt(2);
     }
 
     @Override

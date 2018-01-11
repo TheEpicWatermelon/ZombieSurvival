@@ -6,7 +6,7 @@ import java.util.Random;
  * Created by sasha on 1/2/2018.
  */
 public abstract class Weapon extends Item {
-    public int range;
+    public double range;
     public int attack;
     public int defense;
 

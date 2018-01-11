@@ -11,7 +11,7 @@ public class Knife extends Weapon {
         super("Knife");
         attack = 60;
         defense = 5;
-        range = 1;
+        range = Math.sqrt(2);
     }
 
     @Override
