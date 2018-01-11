@@ -38,6 +38,7 @@ class Server {
     private static GUI GUI; // game.GUI
     volatile static String serverIn; // string that will hold the console input
     private static StringBuilder previousChat;
+    private static Game game;// holds a game object
 
     /**
      * Main
@@ -181,6 +182,9 @@ class Server {
                             String send = COMMAND_MESSAGE + user.getListNum() + msg;
                             writeToUsers(send);
                             GUI.appendToConsole(user.getListNum() + ":" + user.getName()+" sent message: " + send);
+                        }else if(userInput.startsWith(GAME_START)){
+                            game = new Game(users);
+                            // TODO give users the map, give users a list of zombies, give users their spawn locations
                         }
                         else {
                             output.println("err Command Not Available");

@@ -21,7 +21,7 @@ public class User {
     private int xCoord;
     private int yCoord;
     private List<Weapon> inventory;
-    private int currentItem;
+    private int currentItem = 0;
     private String playerClass;
     private int kills;
     private int maxHealth;
@@ -252,8 +252,8 @@ public class User {
         this.yCoord = yCoord;
     }
 
-    public List<Weapon> getInventory() {
-        return inventory;
+    public Weapon getInventory(int index) {
+        return inventory.get(index);
     }
 
     public void setInventory(List<Weapon> inventory) {
