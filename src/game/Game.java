@@ -62,4 +62,8 @@ public class Game {
 
         return true;// return attack success
     }
+
+    public String mapToString(){// get map as one string
+        return map.mapToString();
+    }
 }

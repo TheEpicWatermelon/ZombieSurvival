@@ -35,6 +35,8 @@ class Server {
     private static final String GAME_START = "gst"; // user calls this to start the game
     private static final String GAME_END = "ged"; // user calls this to end the game
     private static final String ZOMBIE_MOVE = "gzm"; // sends user the coordinates of a zombie and then where it moves to
+    private static final String GAME_MAP = "gmp";
+    public static final String GAME_USER_DEAD = "gud";
     private static GUI GUI; // game.GUI
     volatile static String serverIn; // string that will hold the console input
     private static StringBuilder previousChat;
@@ -184,7 +186,8 @@ class Server {
                             GUI.appendToConsole(user.getListNum() + ":" + user.getName()+" sent message: " + send);
                         }else if(userInput.startsWith(GAME_START)){
                             game = new Game(users);
-                            // TODO give users the map, give users a list of zombies, give users their spawn locations
+                            // TODO give users a list of zombies, give users their spawn locations, tell user 1 that it is their turn
+                            writeToUsers(GAME_MAP + game.mapToString());// send map to all the users
                         }
                         else {
                             output.println("err Command Not Available");
@@ -231,8 +234,10 @@ class Server {
             for (int i = 0; i < connectionHandlers.size(); i++) {
                 if (i < connectionHandlers.size()-1){// if this is not the last user add a comma
                     string.append(connectionHandlers.get(i).user.getName()+",");
+                    connectionHandlers.get(i).user.setListNum(i+1);// reset the user's list number
                 }else{
                     string.append(connectionHandlers.get(i).user.getName());
+                    connectionHandlers.get(i).user.setListNum(i+1);// reset the user's list number
                 }
             }
             writeToUsers(string.toString());

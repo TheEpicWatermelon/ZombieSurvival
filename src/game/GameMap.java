@@ -36,6 +36,16 @@ public class GameMap {
         //addChests(chests);
     }
 
+    public String mapToString(){
+        StringBuilder string = new StringBuilder();//use string builder to add strings together
+        for (int i = 0; i < mapTiles.length; i++) {
+            for (int j = 0; j < mapTiles[0].length; j++) {
+                string.append(mapTiles[i][j]);
+            }
+        }
+        return string.toString();
+    }
+
     public List<Zombie> getZombies(){
         return zombies;
     }
@@ -612,6 +622,12 @@ public class GameMap {
         List<ZombieMove> moves = new ArrayList<>();
         for (Zombie zombie: zombies){
             moves.add(moveZombie(zombie));
+            // loop through users an see if their health is at zero or below(dead)
+            for (User user: users){
+                if (user.getHealth() <= 0){
+                    Server.connectionHandlers.get(user.getListNum()).write(Server.GAME_USER_DEAD );
+                }
+            }
         }
         return moves;
     }
