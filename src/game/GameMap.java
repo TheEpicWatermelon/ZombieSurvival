@@ -36,6 +36,14 @@ public class GameMap {
         //addChests(chests);
     }
 
+    public void removeZombie(Zombie zombie){
+        zombies.remove(zombie);
+    }
+
+    public void removeUser(User user){
+        zombies.remove(user);
+    }
+
     public String mapToString(){
         StringBuilder string = new StringBuilder();//use string builder to add strings together
         for (int i = 0; i < mapTiles.length; i++) {

@@ -34,9 +34,16 @@ class Server {
     private static final String COMMAND_KICK = "kck";//sent to user that is being kicked
     private static final String GAME_START = "gst"; // user calls this to start the game
     private static final String GAME_END = "ged"; // user calls this to end the game
-    private static final String ZOMBIE_MOVE = "gzm"; // sends user the coordinates of a zombie and then where it moves to
-    private static final String GAME_MAP = "gmp";
-    public static final String GAME_USER_DEAD = "gud";
+    private static final String ZOMBIE_MOVE = "gzm"; // used for sending the user the coordinates of a zombie and then where it moves to
+    private static final String GAME_MAP = "gmp";//used for sending all the users the map
+    public static final String GAME_USER_DEAD = "gud";//used for sending the user that they are dead
+    public static final String GAME_USER_TURN = "gut";// used for sending to all users which players turn it is
+    private static final String GAME_USER_MOVE = "gum";// sent from a user to process their move(attack or move) the first number 0 or 1 will dictate wheter they moved or attacked, the next numbers are coordinates
+    private static final String GAME_ZOMBIE_SPAWNS = "gzs";// used for sending all the user's the location of the zombie spawns
+    private static final String GAME_USER_CLASS = "guc"; // semt from user when they select their class
+    private static final String GAME_USER_SPAWNS = "gus";// used for sending all the user's a list of all their spawns
+    private static final String GAME_USER_FAILURE = "guf";// sent to a user when they cannot do an action
+    private static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
     private static GUI GUI; // game.GUI
     volatile static String serverIn; // string that will hold the console input
     private static StringBuilder previousChat;
@@ -188,6 +195,8 @@ class Server {
                             game = new Game(users);
                             // TODO give users a list of zombies, give users their spawn locations, tell user 1 that it is their turn
                             writeToUsers(GAME_MAP + game.mapToString());// send map to all the users
+                        }else if(userInput.startsWith(GAME_USER_MOVE)){// TODO process the user's move
+
                         }
                         else {
                             output.println("err Command Not Available");

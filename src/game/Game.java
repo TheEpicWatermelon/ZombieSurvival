@@ -13,6 +13,7 @@ public class Game {
     private GameMap map;
     private int wave;
     private int turn;
+    private int actionMoves;// holds the current user's action moves
 
     // constructor
     Game(List<User> users){
@@ -26,6 +27,12 @@ public class Game {
         map.placeUsers();
         map.placeZombies(wave);
         zombies = map.getZombies();
+    }
+
+    public String getZombieCoords(){
+        //TODO loop through all the zombie's and get their coordinates then return it
+
+        return null;
     }
 
     public boolean attack(User user, Coord zombieCoords){/// TODO add integration of user's action moves decreasing
@@ -56,6 +63,8 @@ public class Game {
         user.attackZombie(attackedZombie, ranged);
 
         if (attackedZombie.getHealth() <= 0){
+            zombies.remove(attackedZombie);
+
             attackedZombie = null;
             // TODO - give all users the location of the dead zombie
         }
