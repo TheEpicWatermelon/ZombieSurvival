@@ -632,8 +632,10 @@ public class GameMap {
             moves.add(moveZombie(zombie));
             // loop through users an see if their health is at zero or below(dead)
             for (User user: users){
+                Server.connectionHandlers.get(user.getListNum()-1).write(Server.GAME_USER_HEALTH+user.getHealth());//send all users their health
                 if (user.getHealth() <= 0){
-                    Server.connectionHandlers.get(user.getListNum()).write(Server.GAME_USER_DEAD );
+                    Server.connectionHandlers.get(user.getListNum()-1).write(Server.GAME_USER_DEAD );
+                    Server.connectionHandlers.get(user.getListNum()-1).running = false;// close the user
                 }
             }
         }

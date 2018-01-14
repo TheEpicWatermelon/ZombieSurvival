@@ -252,6 +252,10 @@ public class User {
         this.yCoord = yCoord;
     }
 
+    public List<Weapon> getInventory() {
+        return inventory;
+    }
+
     public Weapon getInventory(int index) {
         return inventory.get(index);
     }

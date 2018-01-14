@@ -22,7 +22,7 @@ class Server {
     private static ServerSocket serverSock;// server socket for connection
     private static boolean running = true;  // controls if the server is accepting clients
     private static boolean gameRunning = false;
-    private static List<User> users = Collections.synchronizedList(new ArrayList<>()); // synchronized list of users
+    public static List<User> users = Collections.synchronizedList(new ArrayList<>()); // synchronized list of users
     public static List<ConnectionHandler> connectionHandlers = Collections.synchronizedList(new ArrayList<>());// list of all the users connections
     private static final int COMMAND_LEN = 3;// length of the command - default length is 3
     private static final String COMMAND_QUIT = "svt"; // command for user disconnect
@@ -34,19 +34,19 @@ class Server {
     private static final String COMMAND_KICK = "kck";//sent to user that is being kicked
     private static final String GAME_START = "gst"; // user calls this to start the game
     private static final String GAME_END = "ged"; // user calls this to end the game
-    private static final String ZOMBIE_MOVE = "gzm"; // used for sending the user the coordinates of a zombie and then where it moves to
+    public static final String GAME_ZOMBIE_MOVE = "gzm"; // used for sending the user the coordinates of a zombie and then where it moves to
     private static final String GAME_MAP = "gmp";//used for sending all the users the map
     public static final String GAME_USER_DEAD = "gud";//used for sending the user that they are dead
     public static final String GAME_USER_TURN = "gut";// used for sending to all users which players turn it is
     private static final String GAME_USER_MOVE = "gum";// sent from a user to process their move(attack or move) the first number 0 or 1 will dictate wheter they moved or attacked, the next numbers are coordinates
-    private static final String GAME_ZOMBIE_SPAWNS = "gzs";// used for sending all the user's the location of the zombie spawns
+    public static final String GAME_ZOMBIE_SPAWNS = "gzs";// used for sending all the user's the location of the zombie spawns
     private static final String GAME_USER_CLASS = "guc"; // semt from user when they select their class
     private static final String GAME_USER_SPAWNS = "gus";// used for sending all the user's a list of all their spawns
     private static final String GAME_USER_FAILURE = "guf";// sent to a user when they cannot do an action
     public static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
+    public static final String GAME_USER_HEALTH = "guh";// sent to a user to inform a health change
     private static GUI GUI; // game.GUI
     volatile static String serverIn; // string that will hold the console input
-    private static StringBuilder previousChat;
     private static Game game;// holds a game object
 
     /**
@@ -118,7 +118,7 @@ class Server {
         private PrintWriter output; //assign printwriter to network stream
         private BufferedReader input; //Stream for network input
         private Socket client;  //keeps track of the client socket
-        private boolean running; // boolean that will be true when client is not quitting
+        public boolean running; // boolean that will be true when client is not quitting
         private final User user; // holds the user for this connection
 
         /* ConnectionHandler
@@ -208,7 +208,7 @@ class Server {
                                 move = move.substring(indexOfDivider + 1);// take off the x-coordinate
                                 int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
                                 boolean moved = game.moveUser(user, new Coord(xCoord,yCoord));// run the method, returns true if user can move to coordinates, false if they cant
-                                if (moved){// if move was succesful
+                                if (moved){// if move was successful
                                     writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
                                 }else {// failed move
                                     write(GAME_USER_FAILURE);
@@ -227,7 +227,8 @@ class Server {
                             }else{// if user sends incompatible command, send them a fail message
                                 write(GAME_USER_FAILURE);
                             }
-                            //TODO procces action moves
+                            int turn = game.processTurn();// give users whos turn it is
+                            writeToUsers(GAME_USER_TURN+turn);
                         }else if(userInput.startsWith(GAME_USER_CLASS)){// if user selects class
                             int type = Integer.parseInt(userInput.substring(COMMAND_LEN));//substring the command to get the class type
                             user.setClass(type);// set class type
