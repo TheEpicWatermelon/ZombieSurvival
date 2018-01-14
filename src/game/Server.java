@@ -43,7 +43,7 @@ class Server {
     private static final String GAME_USER_CLASS = "guc"; // semt from user when they select their class
     private static final String GAME_USER_SPAWNS = "gus";// used for sending all the user's a list of all their spawns
     private static final String GAME_USER_FAILURE = "guf";// sent to a user when they cannot do an action
-    private static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
+    public static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
     private static GUI GUI; // game.GUI
     volatile static String serverIn; // string that will hold the console input
     private static StringBuilder previousChat;
@@ -193,10 +193,49 @@ class Server {
                             GUI.appendToConsole(user.getListNum() + ":" + user.getName()+" sent message: " + send);
                         }else if(userInput.startsWith(GAME_START)){
                             game = new Game(users);
-                            // TODO give users a list of zombies, give users their spawn locations, tell user 1 that it is their turn
                             writeToUsers(GAME_MAP + game.mapToString());// send map to all the users
+                            writeToUsers(GAME_USER_SPAWNS + game.getUserCoords());// send all the user coordinates
+                            writeToUsers(GAME_ZOMBIE_SPAWNS + game.getZombieCoords());// send zombie coordinates to user
+                            writeToUsers(GAME_START);// tell users that the game has started
+                            writeToUsers(GAME_USER_TURN + game.getTurn());// tell whos turn it is
                         }else if(userInput.startsWith(GAME_USER_MOVE)){// TODO process the user's move
-
+                            String move = userInput.substring(COMMAND_LEN);// remove the command from the front of the command
+                            int moveType = Integer.parseInt(move.substring(1,2));// get the type of move as the first thing. skip the user number
+                            move = move.substring(2);// substring the move type and user list number;
+                            if (moveType == 0){// if this is just a move, process it
+                                int indexOfDivider = move.indexOf(';');
+                                int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
+                                move = move.substring(indexOfDivider + 1);// take off the x-coordinate
+                                int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
+                                boolean moved = game.moveUser(user, new Coord(xCoord,yCoord));// run the method, returns true if user can move to coordinates, false if they cant
+                                if (moved){// if move was succesful
+                                    writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
+                                }else {// failed move
+                                    write(GAME_USER_FAILURE);
+                                }
+                            }else if (moveType == 1){// if this is an attack
+                                int indexOfDivider = move.indexOf(';');
+                                int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
+                                move = move.substring(indexOfDivider + 1);// take off the x-coordinate
+                                int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
+                                boolean attacked = game.userAttack(user, new Coord(xCoord,yCoord));// get if attack was succesful or not
+                                if (attacked){// successful attack
+                                    writeToUsers(GAME_USER_MOVE + user.getListNum() + 1 + xCoord +";"+yCoord);
+                                }else{// failed attack
+                                    write(GAME_USER_FAILURE);
+                                }
+                            }else{// if user sends incompatible command, send them a fail message
+                                write(GAME_USER_FAILURE);
+                            }
+                            //TODO procces action moves
+                        }else if(userInput.startsWith(GAME_USER_CLASS)){// if user selects class
+                            int type = Integer.parseInt(userInput.substring(COMMAND_LEN));//substring the command to get the class type
+                            user.setClass(type);// set class type
+                        }else if(userInput.startsWith(GAME_END)){// if user ends the game
+                            writeToUsers(GAME_END);
+                            running = false;
+                            gameRunning = false;
+                            game = null;
                         }
                         else {
                             output.println("err Command Not Available");
@@ -356,7 +395,7 @@ class Server {
                         continue;
                     }
                     // send out that user has been kicked
-                    connectionHandler.writeToUsers(COMMAND_MESSAGE+0+connectionHandler.user.getName() + " has been kicked");// place holder
+                    connectionHandler.writeToUsers(COMMAND_MESSAGE+connectionHandler.user.getName() + " has been kicked");// place holder
                     connectionHandler.write(COMMAND_KICK);
                     connectionHandler.running = false; // stop user's connection handler
                     GUI.appendToConsole("Kicked user: " + kickNum + " - " + connectionHandler.user.getName());

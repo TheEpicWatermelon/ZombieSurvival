@@ -12,14 +12,16 @@ public class Game {
     private List<Zombie> zombies = new ArrayList<>();
     private GameMap map;
     private int wave;
-    private int turn;
+    private int turn;// holds which user's turn it is
     private int actionMoves;// holds the current user's action moves
+
+    // TODO - ADD USER ACTION MOVES PROCESSING
 
     // constructor
     Game(List<User> users){
         map = new GameMap();
         wave = 1;
-        turn = 1;
+        turn = users.get(0).getListNum();
         this.users = users;
         for(User user: this.users){
             map.addUser(user);
@@ -29,13 +31,34 @@ public class Game {
         zombies = map.getZombies();
     }
 
-    public String getZombieCoords(){
-        //TODO loop through all the zombie's and get their coordinates then return it
-
-        return null;
+    public String getUserCoords(){
+        StringBuilder string = new StringBuilder();
+        for (User user: users){// loop through all the users
+            string.append(user.getxCoord()+";"+user.getyCoord()+";");// get coordinates
+        }
+        return string.toString();// return the list of coordinates
     }
 
-    public boolean attack(User user, Coord zombieCoords){/// TODO add integration of user's action moves decreasing
+    public String getZombieCoords(){
+        StringBuilder string = new StringBuilder();
+        for(Zombie zombie: zombies){// loop through all the zombies
+            string.append(zombie.getxCoord()+";"+zombie.getyCoord()+";");// get coordinates
+        }
+
+        return string.toString();// return coordinates
+    }
+
+    public boolean moveUser(User user, Coord coord) {// TODO add integration of user's action moves decreasing
+        boolean moved = map.moveUser(user, coord);
+
+        if (moved){// if move was successful then send true TODO - count down action moves
+            return true;
+        }else{// if move was not successful
+            return false;
+        }
+    }
+
+    public boolean userAttack(User user, Coord zombieCoords){/// TODO add integration of user's action moves decreasing
         // loop through all the zombies to find
         Zombie attackedZombie = null;
         for(Zombie zombie: zombies){
@@ -65,8 +88,8 @@ public class Game {
         if (attackedZombie.getHealth() <= 0){
             zombies.remove(attackedZombie);
 
+            Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_DEAD + attackedZombie.getxCoord()+attackedZombie.getyCoord());
             attackedZombie = null;
-            // TODO - give all users the location of the dead zombie
         }
 
         return true;// return attack success
@@ -75,4 +98,10 @@ public class Game {
     public String mapToString(){// get map as one string
         return map.mapToString();
     }
+
+    public int getTurn() {
+        return turn;
+    }
+
+
 }

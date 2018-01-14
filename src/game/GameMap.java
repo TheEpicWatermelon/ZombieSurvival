@@ -640,6 +640,25 @@ public class GameMap {
         return moves;
     }
 
+    public boolean moveUser(User user, Coord coord){
+        // first calculate if the user can move to that coordinate
+        double moveDistance = Math.sqrt( Math.pow( (user.getxCoord() + coord.x), 2) + Math.pow( (user.getyCoord() + coord.y), 2) );// get the distance to the square
+
+        if (moveDistance > Math.sqrt(2)){// if the distance to move is greater than root 2 than it is impossible to move(root 2 is used because that is the distance to move diagonally)
+            return false;
+        }
+
+        if (mapTiles[coord.y][coord.x].getTileType() != 0){// if tile type is not grass
+            return false;
+        }
+
+        // now move the user
+        user.setxCoord(coord.x);
+        user.setyCoord(coord.y);
+
+        return true;
+    }
+
     public ZombieMove moveZombie(Zombie zombie) {
         ZombieMove move = new ZombieMove();
         int actions = zombie.getSpeed(); // number of actions the zombie has
