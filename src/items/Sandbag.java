@@ -1,11 +1,14 @@
 package items;
 
 /**
- * Created by sasha on 12/31/2017.
+ * [Sandbag.java]
+ * holds data for the sandbag item
+ * @author Sasha Maximovitch
+ * @date December 31st, 2017
  */
 public class Sandbag extends Item {
-
+    // constructor
     Sandbag(){
         super("Sandbag");
     }
-}
+}// end Sandbag class
