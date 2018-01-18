@@ -1,16 +1,18 @@
 package zombies;
 
+// imports
 import game.User;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
- * Created by sasha on 1/6/2018.
+ * [ZombieTest.java]
+ * a method that tests a zombie's attack method
+ * @author Sasha Maximovitch
+ * @date January 6th, 2018
  */
 public class ZombieTest {
     @Test
-    public void attackPlayer() throws Exception {
+    public void attackPlayer() throws Exception {// Test a zombie attack with each type of zombie on each type of player
         for(int userType = 0; userType < 5; userType ++) {
 
             int failcount = 0;
@@ -74,5 +76,4 @@ public class ZombieTest {
             System.out.println("User type: " + userType + "  Attack failed " + failcount + " times (" + ((failcount * 100) / rounds) + "%)");
         }
     }
-
-}
+}// end ZombieTest class

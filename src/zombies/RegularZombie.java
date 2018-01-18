@@ -1,11 +1,14 @@
 package zombies;
 
 /**
- * Created by sasha on 12/29/2017.
+ * [RegularZombie.java]
+ * holds data for the regular zombie
+ * @author Sasha Maximovitch
+ * @date December 29th, 2017
  */
 public class RegularZombie extends Zombie {
-
-    public RegularZombie(int yCoord, int xCoord){// add randomness later
+    // constructor that sets the regular Zombie stats
+    public RegularZombie(int yCoord, int xCoord){
         super(yCoord, xCoord);
         health = 50;
         attackValue = 50;
@@ -13,5 +16,4 @@ public class RegularZombie extends Zombie {
         evasiveness = 50;
         speed = 5;
     }
-
-}
+}// end RegularZombie stats
