@@ -4,7 +4,7 @@ package game;
  * [Coord.java]
  * Holds variables for the x and y coordinates
  * @author Sasha Maximovitch
- * @date January 4th, 2017
+ * @date January 4th, 2018
  */
 public class Coord {
     public final int x;

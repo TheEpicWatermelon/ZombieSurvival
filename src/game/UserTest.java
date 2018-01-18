@@ -9,10 +9,13 @@ import zombies.Zombie;
 import static org.junit.Assert.*;
 
 /**
- * Created by sasha on 1/6/2018.
+ * [UserTest.java]
+ * a series of methods that test the User class
+ * @author Sasha Maximovitch
+ * @data January 6th, 2018
  */
 public class UserTest {
-    @Test
+    @Test// check every single type of class in both melee and ranged against every single type of zombie
     public void attackZombie() throws Exception {
         System.out.println("REGULAR ZOMBIE - MELEE");
         for(int userType = 0; userType < 5; userType ++) {// regular zombie - melee
@@ -145,12 +148,5 @@ public class UserTest {
             }
             System.out.println("User type: " + userType + "  Attack failed " + failcount + " times (" + ((failcount * 100) / rounds) + "%)");
         }
-
-
-
-
-
-
-    }
-
-}
+    }// end attackZombie
+}// end UserTest class

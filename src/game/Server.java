@@ -336,6 +336,12 @@ class Server {
         }
     } //end of inner class
 
+    /**
+     * handleGuiCommand
+     * is called by the GUI class when a command is entered into the console, this method handles the processing of that command
+     * @param serverIn - the input text
+     */
+
     public static void handleGuiCommand(String serverIn) {
         if (serverIn.equals("close")) {// shuts down server
             for (int i = 0; i < connectionHandlers.size(); i++) {// send message to every user that server is closing
@@ -422,6 +428,6 @@ class Server {
             serverIn = null;
         }
 
-    }
+    }// end of handleGuiCommand
 
 } //end of game.Server class

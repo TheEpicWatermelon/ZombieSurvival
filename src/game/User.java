@@ -1,16 +1,16 @@
 package game;
 
+// imports
 import items.*;
 import zombies.Zombie;
-
 import java.util.List;
 import java.util.Random;
 
 /**
  * [game.User.java]
- * holds all the data for a single user
+ * holds all the data and game data for a single user
  * @author Sasha Maximovitch
- * @date November 9th, 2017
+ * @date December 18th, 2017
  */
 
 public class User {
@@ -20,11 +20,11 @@ public class User {
     private int listNum;// user's list number
     private int xCoord;
     private int yCoord;
-    private List<Weapon> inventory;
-    private int currentItem = 0;
-    private String playerClass;
+    private List<Weapon> inventory;// list of weapons for the inventory
+    private int currentItem = 0;// index of current item in the inventory
+    private String playerClass;// the class type of player
     private int kills;
-    private int maxHealth;
+    private int maxHealth;// the maximum health the player can have
     private int upgradePointStatus;// when this reaches 10 an upgrade point is added
     private int upgradePoints;// number of upgrade points
     private Random random = new Random();
@@ -46,15 +46,23 @@ public class User {
     private int quickness = 0;// index 3 when upgrading
     private int building = 0;// index 4 when upgrading
 
+    // Constructor
     public User(){
     }
 
+    // Constructor that sets name, x and y coords(used for testing)
     public User(String name, int yCoord, int xCoord){
         this.name = name;
         this.yCoord = yCoord;
         this.xCoord = xCoord;
     }
 
+    /**
+     * attackZombie
+     * calculates the outcome for an attack against a zombie
+     * @param zombie - the zombie that is being attacked
+     * @param ranged - if the attack is ranged or not(changes some calculations)
+     */
     public void attackZombie(Zombie zombie, boolean ranged){
         int randNum;
         if (ranged){// if this is a range attack, check hit chance by range skill
@@ -84,13 +92,22 @@ public class User {
                 zombie.setHealth(zombie.getHealth() - attackValue);
             }
         }
-    }
+    }// end attackZombie
 
-
+    /**
+     * heal
+     * adds on to the current health the player has
+     * @param healthGain - the amount of health to be gained
+     */
     public void heal(int healthGain){
         this.health += healthGain;
-    }
+    }// end heal
 
+    /**
+     * upgrade
+     * when a user wants to upgrade a skill this method is called, it selects the appropriate skill to be upgraded and upgrades certain stats as a result
+     * @param index
+     */
     public void upgrade(int index){
         switch(index) {
             case 0:// upgrade health skill, this increases the maximum health of the character by 5
@@ -117,7 +134,7 @@ public class User {
                 builder+= 5;
                 break;
         }
-    }
+    }// end upgrade
 
 
     // GETTERS AND SETTERS FOR STATS
@@ -320,6 +337,12 @@ public class User {
         this.health = health;
     }
 
+    /**
+     * setClass
+     * user selects a class to be switched to, the appropriate classes default skills will be set, and a weapon will be assigned as well
+     * @param classIndex - the index of the class - 0 is scout, 1 is sniper, 2 is thief, 3 is mechanic, 4 is tank
+     */
+
     public void setClass(int classIndex){
         if (classIndex == 0){// set scout
             if (inventory.size() == 1){// remove previous item
@@ -392,6 +415,5 @@ public class User {
             builder = 20;
             inventory.add(new Sword());
         }
-    }
-
-}
+    }// end setClass
+}// end User class

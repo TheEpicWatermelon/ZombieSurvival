@@ -9,7 +9,10 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Created by sasha on 1/5/2018.
+ * [GameMapTest.java]
+ * a collection of methods that helped me test the game map
+ * @author Sasha Maximovitch
+ * @date January 5th, 2018
  */
 public class GameMapTest {
     @Test
@@ -20,7 +23,7 @@ public class GameMapTest {
 
         User nearestPlayer = map.nearestPlayer(new RegularZombie(3,4));
         Assert.assertEquals("User 1", nearestPlayer.getName());
-    }
+    }// end findNearestPlayer1
 
     @Test
     public void findNearestPlayer2() throws Exception {
@@ -29,7 +32,7 @@ public class GameMapTest {
 
         User nearestPlayer = map.nearestPlayer(new RegularZombie(3,4));
         Assert.assertNull(nearestPlayer);
-    }
+    }// end findNearestPlayer2
 
     @Test
     public void findNearestPlayer3() throws Exception {
@@ -42,7 +45,7 @@ public class GameMapTest {
 
         Assert.assertEquals(1,users.size());
         Assert.assertEquals("User 1", users.get(0).getName());
-    }
+    }// end findNearestPlayer3
 
     @Test
     public void findNearestPlayer4() throws Exception {
@@ -54,7 +57,7 @@ public class GameMapTest {
         List<User> users = map.playersNextTo(new RegularZombie(3,4));
 
         Assert.assertEquals(2,users.size());
-    }
+    }// end findNearestPlayer4
 
     @Test
     public void findNearestPlayer5() throws Exception {
@@ -66,7 +69,7 @@ public class GameMapTest {
         List<User> users = map.playersNextTo(new RegularZombie(3,4));
 
         Assert.assertEquals(0,users.size());
-    }
+    }// end findNearestPlayer5
 
     @Test
     public void zombieMove() throws Exception{
@@ -81,15 +84,13 @@ public class GameMapTest {
             System.out.println(move.move.get(i).x + " - " + move.move.get(i).y);
 
         }
-
-
-    }
+    }// end zombieMove
 
     @Test
     public void printMap() throws Exception{
         GameMap map = new GameMap();
         map.displayMap();
         System.out.println(map.mapToString());
-    }
+    }// end printMap
 
 }

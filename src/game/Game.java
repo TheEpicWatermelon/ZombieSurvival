@@ -10,7 +10,7 @@ import java.util.List;
  * [Game.java]
  * a state machine that controls the interaction between the server and the game, processes user's turns, sets the map, etc
  * @author Sasha Maximovitch
- * @date January 9th, 2017
+ * @date January 9th, 2018
  */
 
 public class Game {

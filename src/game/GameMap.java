@@ -65,7 +65,7 @@ public class GameMap {
 
     /**
      * mapToString
-     * gets the whole map as one long string
+     * gets the whole map as one long string, this is modified for the simple client version
      * @return a string that holds the map
      */
     public String mapToString(){
@@ -77,17 +77,21 @@ public class GameMap {
                     string.append("Z");
                 }else if(isUserOn(j,i)){// if there is a user on that tile, print X
                     string.append("X");
-                }else {
+                }else {// else just print the tile(grass will just be a space)
                     string.append(mapTiles[i][j]);
                 }
             }
         }
-
-        for (Zombie zombie: zombies){
-
-        }
         return string.toString();
     }// end mapToString
+
+    /**
+     * isZombieOn
+     * takes coordinates and checks if a zombie is on those coordinates
+     * @param x
+     * @param y
+     * @return true or false depending on if a zombie is on those coordinates
+     */
 
     private boolean isZombieOn(int x, int y) {
         for (Zombie zombie: zombies){
@@ -96,9 +100,15 @@ public class GameMap {
             }
         }
         return false;
-    }
+    }// end isZombieOn
 
-
+    /**
+     * isUserOn
+     * takes coordinates and checks if a user is on those coordinates
+     * @param x
+     * @param y
+     * @return true or false depending on if a user is on those coordinates
+     */
     private boolean isUserOn(int x, int y) {
         for (User user: users){
             if ( (user.getxCoord() == x) && (user.getyCoord() == y) ){
@@ -106,7 +116,7 @@ public class GameMap {
             }
         }
         return false;
-    }
+    }// end isUserOn
 
 
     /**
