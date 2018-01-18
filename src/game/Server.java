@@ -11,9 +11,9 @@ import java.util.List;
 
 /**
  * [game.Server.java]
- * Runs a server for a game that will hold up to 4 users, will handle all input/output to the users
+ * Runs a server for the Zombie Survival game that will hold up to 4 users, will handle all input/output to the users
  * @author Sasha Maximovitch
- * @date November 9th, 2017
+ * @date December 18th, 2017
  */
 
 class Server {
@@ -21,7 +21,7 @@ class Server {
     //global variables
     private static ServerSocket serverSock;// server socket for connection
     private static boolean running = true;  // controls if the server is accepting clients
-    private static boolean gameRunning = false;
+    private static boolean gameRunning = false;// turns to true when the game is running
     public static List<User> users = Collections.synchronizedList(new ArrayList<>()); // synchronized list of users
     public static List<ConnectionHandler> connectionHandlers = Collections.synchronizedList(new ArrayList<>());// list of all the users connections
     private static final int COMMAND_LEN = 3;// length of the command - default length is 3
@@ -45,7 +45,7 @@ class Server {
     private static final String GAME_USER_FAILURE = "guf";// sent to a user when they cannot do an action
     public static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
     public static final String GAME_USER_HEALTH = "guh";// sent to a user to inform a health change
-    private static GUI GUI; // game.GUI
+    private static GUI GUI; // GUI that holds the server console
     volatile static String serverIn; // string that will hold the console input
     private static Game game;// holds a game object
 
@@ -82,7 +82,7 @@ class Server {
                 GUI.appendToConsole("Client Connected - " + client.getLocalAddress());
                 // debug System.out.println("Client connected");
                 if(connectionHandlers.size()>=4 || gameRunning){// if the player count is already at the limit, or game has started, reject the user
-                    ConnectionHandler connect = new ConnectionHandler(client);
+                    ConnectionHandler connect = new ConnectionHandler(client);// start connection handler that will disconnect the user
                     Thread t = new Thread(connect);
                     t.start();
                 }else {// if there is still space on the server
@@ -176,32 +176,36 @@ class Server {
                         // debug System.out.println("msg from client: " + userInput);
 
                         // if the user sends a disconnect
-                        if (userInput.startsWith(COMMAND_QUIT)) {
+                        if (userInput.startsWith(COMMAND_QUIT)) {// process user quiting command
                             writeToUsers(COMMAND_MESSAGE+0+ user.getName() + " has disconnected");// placeholder
                             running = false; //stop receiving messages
-                        }else if(userInput.startsWith(COMMAND_NEW)){
+                        }else if(userInput.startsWith(COMMAND_NEW)){// process new user command
                             write(COMMAND_ACCEPT);
                             user.setName(userInput.substring(COMMAND_LEN));
                             user.setListNum(connectionHandlers.size());
                             GUI.appendToConsole("game.User "+ user.getListNum() + " name set: " + user.getName());
                             updateUserList();
-                            writeToUsers(COMMAND_MESSAGE +0+ user.getName() + " has connected");
-                        }else if(userInput.startsWith(COMMAND_MESSAGE)){
+                            //writeToUsers(COMMAND_MESSAGE + user.getName() + " has connected");
+                        }else if(userInput.startsWith(COMMAND_MESSAGE)){// process messages
                             String msg = userInput.substring(COMMAND_LEN);
                             String send = COMMAND_MESSAGE + user.getListNum() + msg;
                             writeToUsers(send);
                             GUI.appendToConsole(user.getListNum() + ":" + user.getName()+" sent message: " + send);
-                        }else if(userInput.startsWith(GAME_START)){
-                            game = new Game(users);
+                        }else if(userInput.startsWith(GAME_START)){// process when the user wants the game to start
+                            game = new Game(users);// create a new game
                             writeToUsers(GAME_MAP + game.mapToString());// send map to all the users
                             writeToUsers(GAME_USER_SPAWNS + game.getUserCoords());// send all the user coordinates
                             writeToUsers(GAME_ZOMBIE_SPAWNS + game.getZombieCoords());// send zombie coordinates to user
                             writeToUsers(GAME_START);// tell users that the game has started
                             writeToUsers(GAME_USER_TURN + game.getTurn());// tell whos turn it is
-                        }else if(userInput.startsWith(GAME_USER_MOVE)){// TODO process the user's move
+                        }else if(userInput.startsWith(GAME_USER_MOVE)){// process user's inputed move
                             String move = userInput.substring(COMMAND_LEN);// remove the command from the front of the command
                             int moveType = Integer.parseInt(move.substring(1,2));// get the type of move as the first thing. skip the user number
                             move = move.substring(2);// substring the move type and user list number;
+                            if (user.getListNum() != game.getTurn()){// if it is not the user's turn write a fail message
+                                write(GAME_USER_FAILURE);
+                                break;
+                            }
                             if (moveType == 0){// if this is just a move, process it
                                 int indexOfDivider = move.indexOf(';');
                                 int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
@@ -212,6 +216,7 @@ class Server {
                                     writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
                                 }else {// failed move
                                     write(GAME_USER_FAILURE);
+                                    break;
                                 }
                             }else if (moveType == 1){// if this is an attack
                                 int indexOfDivider = move.indexOf(';');
@@ -226,8 +231,9 @@ class Server {
                                 }
                             }else{// if user sends incompatible command, send them a fail message
                                 write(GAME_USER_FAILURE);
+                                break;
                             }
-                            int turn = game.processTurn();// give users whos turn it is
+                            int turn = game.processTurn();// give users whos turn it is, if it's the zombie's turn it will process that and then come back to the first user
                             writeToUsers(GAME_USER_TURN+turn);
                         }else if(userInput.startsWith(GAME_USER_CLASS)){// if user selects class
                             int type = Integer.parseInt(userInput.substring(COMMAND_LEN));//substring the command to get the class type
