@@ -97,8 +97,8 @@ public class GUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             inputText = consoleInput.getText(); // get the input text
             consoleInput.setText(""); // reset the console input
-            Server.serverIn = inputText;// set the serverIn in game.Server.java to the new console input
             appendToConsole(inputText);// add the input to the console text area
+            Server.handleGuiCommand(inputText);// handle the command in the server
             inputText = null; // reset inputText
             // debug System.out.println("Clicked");
         }

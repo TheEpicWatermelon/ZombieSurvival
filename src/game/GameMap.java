@@ -72,11 +72,42 @@ public class GameMap {
         StringBuilder string = new StringBuilder();//use string builder to add strings together
         for (int i = 0; i < mapTiles.length; i++) {
             for (int j = 0; j < mapTiles[0].length; j++) {
-                string.append(mapTiles[i][j]);
+                // if this tile has zombie, put Z
+                if (isZombieOn(j,i)){
+                    string.append("Z");
+                }else if(isUserOn(j,i)){// if there is a user on that tile, print X
+                    string.append("X");
+                }else {
+                    string.append(mapTiles[i][j]);
+                }
             }
+        }
+
+        for (Zombie zombie: zombies){
+
         }
         return string.toString();
     }// end mapToString
+
+    private boolean isZombieOn(int x, int y) {
+        for (Zombie zombie: zombies){
+            if ( (zombie.getxCoord() == x) && (zombie.getyCoord() == y) ){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private boolean isUserOn(int x, int y) {
+        for (User user: users){
+            if ( (user.getxCoord() == x) && (user.getyCoord() == y) ){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * getZombies

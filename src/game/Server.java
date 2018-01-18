@@ -35,7 +35,7 @@ class Server {
     private static final String GAME_START = "gst"; // user calls this to start the game
     private static final String GAME_END = "ged"; // user calls this to end the game
     public static final String GAME_ZOMBIE_MOVE = "gzm"; // used for sending the user the coordinates of a zombie and then where it moves to
-    private static final String GAME_MAP = "gmp";//used for sending all the users the map
+    public static final String GAME_MAP = "gmp";//used for sending all the users the map
     public static final String GAME_USER_DEAD = "gud";//used for sending the user that they are dead
     public static final String GAME_USER_TURN = "gut";// used for sending to all users which players turn it is
     private static final String GAME_USER_MOVE = "gum";// sent from a user to process their move(attack or move) the first number 0 or 1 will dictate wheter they moved or attacked, the next numbers are coordinates
@@ -46,7 +46,7 @@ class Server {
     public static final String GAME_ZOMBIE_DEAD = "gzd";// sent to all users to show a zombie has died at a certain coordinate
     public static final String GAME_USER_HEALTH = "guh";// sent to a user to inform a health change
     private static GUI GUI; // GUI that holds the server console
-    volatile static String serverIn; // string that will hold the console input
+    //volatile static String serverIn; // string that will hold the console input
     private static Game game;// holds a game object
 
     /**
@@ -57,9 +57,6 @@ class Server {
     public static void main(String[] args) throws IOException {
         // initialize game.GUI
         GUI = new GUI();
-        // Start console input listener
-        Thread console = new Thread(new consoleThread());
-        console.start();
         // start the server
         new Server().go(); //start the server
     }
@@ -194,10 +191,10 @@ class Server {
                         }else if(userInput.startsWith(GAME_START)){// process when the user wants the game to start
                             game = new Game(users);// create a new game
                             writeToUsers(GAME_MAP + game.mapToString());// send map to all the users
-                            writeToUsers(GAME_USER_SPAWNS + game.getUserCoords());// send all the user coordinates
-                            writeToUsers(GAME_ZOMBIE_SPAWNS + game.getZombieCoords());// send zombie coordinates to user
+                            //writeToUsers(GAME_USER_SPAWNS + game.getUserCoords());// send all the user coordinates
+                            //writeToUsers(GAME_ZOMBIE_SPAWNS + game.getZombieCoords());// send zombie coordinates to user
                             writeToUsers(GAME_START);// tell users that the game has started
-                            writeToUsers(GAME_USER_TURN + game.getTurn());// tell whos turn it is
+                            //writeToUsers(GAME_USER_TURN + game.getTurn());// tell whos turn it is
                         }else if(userInput.startsWith(GAME_USER_MOVE)){// process user's inputed move
                             String move = userInput.substring(COMMAND_LEN);// remove the command from the front of the command
                             int moveType = Integer.parseInt(move.substring(1,2));// get the type of move as the first thing. skip the user number
@@ -213,7 +210,8 @@ class Server {
                                 int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
                                 boolean moved = game.moveUser(user, new Coord(xCoord,yCoord));// run the method, returns true if user can move to coordinates, false if they cant
                                 if (moved){// if move was successful
-                                    writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
+                                    //writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
+                                    writeToUsers(GAME_MAP + game.mapToString());
                                 }else {// failed move
                                     write(GAME_USER_FAILURE);
                                     break;
@@ -225,7 +223,8 @@ class Server {
                                 int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
                                 boolean attacked = game.userAttack(user, new Coord(xCoord,yCoord));// get if attack was succesful or not
                                 if (attacked){// successful attack
-                                    writeToUsers(GAME_USER_MOVE + user.getListNum() + 1 + xCoord +";"+yCoord);
+                                    //writeToUsers(GAME_USER_MOVE + user.getListNum() + 1 + xCoord +";"+yCoord);
+                                    writeToUsers(GAME_MAP + game.mapToString());
                                 }else{// failed attack
                                     write(GAME_USER_FAILURE);
                                 }
@@ -234,7 +233,8 @@ class Server {
                                 break;
                             }
                             int turn = game.processTurn();// give users whos turn it is, if it's the zombie's turn it will process that and then come back to the first user
-                            writeToUsers(GAME_USER_TURN+turn);
+                            writeToUsers(GAME_MAP + game.mapToString());
+                            //writeToUsers(GAME_USER_TURN+turn);
                         }else if(userInput.startsWith(GAME_USER_CLASS)){// if user selects class
                             int type = Integer.parseInt(userInput.substring(COMMAND_LEN));//substring the command to get the class type
                             user.setClass(type);// set class type
@@ -336,105 +336,92 @@ class Server {
         }
     } //end of inner class
 
-    /**
-     * [consoleThread.java]
-     * gets and processes inputs from the console
-     */
-    private static class consoleThread implements Runnable {
-        @Override
-        public void run() {
-            while (true) {
-                if (serverIn == null) {// if there is no message keep looping
-                    continue;
-                }
-                if (serverIn.equals("close")) {// shuts down server
-                    for (int i = 0; i < connectionHandlers.size(); i++) {// send message to every user that server is closing
-                        connectionHandlers.get(i).write(COMMAND_MESSAGE + "~~SERVER CLOSING IN 20 SECONDS~~");
-                        connectionHandlers.get(i).write(COMMAND_QUIT);
-                    }
-                    GUI.appendToConsole("Shutting down server...");
-                    // debug System.out.println("Starting shut down");
-                    try {// wait 5 seconds
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        System.exit(1);
-                    }
-                    // debug System.out.println("Waiting Done");
-                    for (int i = 0; i < connectionHandlers.size(); i++) {// turn off all users connection handler's
-                        connectionHandlers.get(i).running = false;
-                    }
-                    // close the server socket
-                    try {
-                        serverSock.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        System.exit(1);
-                    }
-                    // debug System.out.println("Shutting down");
-                    System.exit(1);// close
-                } else if (serverIn.startsWith("kick")) { // kick a yser
-                    try {
-                        serverIn = serverIn.substring(5);// substring kick and number after
-                    } catch (StringIndexOutOfBoundsException e) {
-                        GUI.appendToConsole("No user specified");
-                        serverIn = null;
-                        continue;
-                    }
-                    int kickNum;
-                    try {// get the list number of the kick user
-                        kickNum = Integer.parseInt(serverIn);
-                    } catch (StringIndexOutOfBoundsException e) {// if there is no valid number
-                        GUI.appendToConsole("No user specified");
-                        serverIn = null;
-                        continue;
-                    }
-                    ConnectionHandler connectionHandler = null;
-                    for (int i = 0; i < connectionHandlers.size(); i++) {// get the connection handler of that user
-                        if (connectionHandlers.get(i).user.getListNum() == kickNum) {
-                            connectionHandler = connectionHandlers.get(i);
-                            break;
-                        }
-                    }
-                    if (connectionHandler == null) {// if there is no connection handler
-                        GUI.appendToConsole("This is not a valid user");
-                        serverIn = null;
-                        continue;
-                    }
-                    // send out that user has been kicked
-                    connectionHandler.writeToUsers(COMMAND_MESSAGE+connectionHandler.user.getName() + " has been kicked");// place holder
-                    connectionHandler.write(COMMAND_KICK);
-                    connectionHandler.running = false; // stop user's connection handler
-                    GUI.appendToConsole("Kicked user: " + kickNum + " - " + connectionHandler.user.getName());
-                    serverIn = null;
-                } else if (serverIn.startsWith("list members")) {// to display the list of all the members on the server
-                    StringBuilder listOfMembers = new StringBuilder();
-                    // if there are no users online
-                    if (users.size() == 0){
-                        GUI.appendToConsole("There are no users online.");
-                        break;
-                    }
-                    // get the names of all the users in the server
-                    for (int i = 0; i < users.size(); i++) {
-                        listOfMembers.append(" " + users.get(i).getListNum() + " - " + users.get(i).getName() + " ");
-                        if (i < users.size() - 1) {
-                            listOfMembers.append(",");
-                        }
-                    }
-                    GUI.appendToConsole(listOfMembers.toString());
-                    serverIn = null;
-                } else if (serverIn.startsWith("broadcast")) {// broadcast a message to general chat
-                    String msg = COMMAND_MESSAGE + serverIn.substring(9);// add command and get the message, substring first 9 characters of serverIn to remove broadcast
-                    for (int i = 0; i < connectionHandlers.size(); i++) {// send to each user
-                        connectionHandlers.get(i).write(msg);
-                    }
-                    serverIn = null;
-                } else {// if the input is not valid
-                    GUI.appendToConsole("This is not a valid command!");
-                    serverIn = null;
+    public static void handleGuiCommand(String serverIn) {
+        if (serverIn.equals("close")) {// shuts down server
+            for (int i = 0; i < connectionHandlers.size(); i++) {// send message to every user that server is closing
+                connectionHandlers.get(i).write(COMMAND_MESSAGE + "~~SERVER CLOSING IN 20 SECONDS~~");
+                connectionHandlers.get(i).write(COMMAND_QUIT);
+            }
+            GUI.appendToConsole("Shutting down server...");
+            // debug System.out.println("Starting shut down");
+            try {// wait 5 seconds
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            // debug System.out.println("Waiting Done");
+            for (int i = 0; i < connectionHandlers.size(); i++) {// turn off all users connection handler's
+                connectionHandlers.get(i).running = false;
+            }
+            // close the server socket
+            try {
+                serverSock.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+            // debug System.out.println("Shutting down");
+            System.exit(1);// close
+        } else if (serverIn.startsWith("kick")) { // kick a yser
+            try {
+                serverIn = serverIn.substring(5);// substring kick and number after
+            } catch (StringIndexOutOfBoundsException e) {
+                GUI.appendToConsole("No user specified");
+                serverIn = null;
+                return;
+            }
+            int kickNum = 0;
+            try {// get the list number of the kick user
+                kickNum = Integer.parseInt(serverIn);
+            } catch (StringIndexOutOfBoundsException e) {// if there is no valid number
+                GUI.appendToConsole("No user specified");
+                serverIn = null;
+            }
+            ConnectionHandler connectionHandler = null;
+            for (int i = 0; i < connectionHandlers.size(); i++) {// get the connection handler of that user
+                if (connectionHandlers.get(i).user.getListNum() == kickNum) {
+                    connectionHandler = connectionHandlers.get(i);
+                    return;
                 }
             }
+            if (connectionHandler == null) {// if there is no connection handler
+                GUI.appendToConsole("This is not a valid user");
+                serverIn = null;
+                return;
+            }
+            // send out that user has been kicked
+            connectionHandler.writeToUsers(COMMAND_MESSAGE+connectionHandler.user.getName() + " has been kicked");// place holder
+            connectionHandler.write(COMMAND_KICK);
+            connectionHandler.running = false; // stop user's connection handler
+            GUI.appendToConsole("Kicked user: " + kickNum + " - " + connectionHandler.user.getName());
+            serverIn = null;
+        } else if (serverIn.startsWith("list members")) {// to display the list of all the members on the server
+            StringBuilder listOfMembers = new StringBuilder();
+            // if there are no users online
+            if (users.size() == 0){
+                GUI.appendToConsole("There are no users online.");
+            }
+            // get the names of all the users in the server
+            for (int i = 0; i < users.size(); i++) {
+                listOfMembers.append(" " + users.get(i).getListNum() + " - " + users.get(i).getName() + " ");
+                if (i < users.size() - 1) {
+                    listOfMembers.append(",");
+                }
+            }
+            GUI.appendToConsole(listOfMembers.toString());
+            serverIn = null;
+        } else if (serverIn.startsWith("broadcast")) {// broadcast a message to general chat
+            String msg = COMMAND_MESSAGE + serverIn.substring(9);// add command and get the message, substring first 9 characters of serverIn to remove broadcast
+            for (int i = 0; i < connectionHandlers.size(); i++) {// send to each user
+                connectionHandlers.get(i).write(msg);
+            }
+            serverIn = null;
+        } else {// if the input is not valid
+            GUI.appendToConsole("This is not a valid command!");
+            serverIn = null;
         }
+
     }
 
 } //end of game.Server class

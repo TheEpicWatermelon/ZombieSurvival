@@ -85,4 +85,11 @@ public class GameMapTest {
 
     }
 
+    @Test
+    public void printMap() throws Exception{
+        GameMap map = new GameMap();
+        map.displayMap();
+        System.out.println(map.mapToString());
+    }
+
 }

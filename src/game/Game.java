@@ -171,7 +171,7 @@ public class Game {
                 List<ZombieMove> zombieMoves = map.moveZombies();// move the zombies
                 for (ZombieMove zombieMove : zombieMoves) {// loop through all the moves and send them
                     String move = zombieMove.toString();
-                    Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_MOVE + move);// send the moves for each zombie one at a time
+                    //Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_MOVE + move);// send the moves for each zombie one at a time
                 }
                 users = Server.users;// refresh list of users
                 turn = users.get(0).getListNum();// set the turn to the first user
@@ -180,11 +180,11 @@ public class Game {
                 // reheal all users
                 for(User user: users){
                     user.setHealth(user.getMaxHealth());// set all their health to the max health
-                    Server.connectionHandlers.get(user.getListNum()-1).write(Server.GAME_USER_HEALTH+user.getHealth());// give users their health
+                    //Server.connectionHandlers.get(user.getListNum()-1).write(Server.GAME_USER_HEALTH+user.getHealth());// give users their health
                     wave ++;// increase the wave by one
                     map.placeZombies(wave);// spawn the zombies
                     zombies = map.getZombies();
-                    Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_SPAWNS + getZombieCoords());// send zombie coordinates to user;
+                    //Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_SPAWNS + getZombieCoords());// send zombie coordinates to user;
                     turn = users.get(0).getListNum();
                     return turn;//return the turn for the first player
                 }
