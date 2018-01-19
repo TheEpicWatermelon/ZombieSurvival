@@ -835,7 +835,7 @@ public class GameMap {
 
     public boolean moveUser(User user, Coord coord){
         // first calculate if the user can move to that coordinate
-        double moveDistance = Math.sqrt( Math.pow( (user.getxCoord() + coord.x), 2) + Math.pow( (user.getyCoord() + coord.y), 2) );// get the distance to the square
+        double moveDistance = Math.sqrt( Math.pow( (user.getxCoord() - coord.x), 2) + Math.pow( (user.getyCoord() - coord.y), 2) );// get the distance to the square
 
         if (moveDistance > Math.sqrt(2)){// if the distance to move is greater than root 2 than it is impossible to move(root 2 is used because that is the distance to move diagonally)
             return false;
@@ -971,7 +971,7 @@ public class GameMap {
         int index = -1;
         // loop through all the possible moves and calculate the distance
         for (int i = 0; i < possibleMoves.size(); i++) {
-            double distance = Math.sqrt(Math.pow(possibleMoves.get(i).x + user.getxCoord(), 2) + Math.pow(possibleMoves.get(i).y + user.getyCoord(), 2));// use distance formulate to calculate distance
+            double distance = Math.sqrt(Math.pow(possibleMoves.get(i).x - user.getxCoord(), 2) + Math.pow(possibleMoves.get(i).y - user.getyCoord(), 2));// use distance formulate to calculate distance
             if (distance < smallestDistance){// if distance calculated is smaller than smallest distance already calculated
                 smallestDistance = distance;// set smallest distance to that distance
                 index = i;// get the index for return

@@ -249,7 +249,7 @@ public class Game {
                 }
                 users = Server.users;// refresh list of users
                 turn = users.get(0).getListNum();// set the turn to the first user
-                actionMoves = users.get(turn).getSpeed();// set the action moves
+                actionMoves = users.get(turn-1).getSpeed();// set the action moves
                 return turn;
             }else{// if all the zombies are dead
                 // reheal all users
@@ -261,13 +261,13 @@ public class Game {
                     zombies = map.getZombies();
                     //Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_SPAWNS + getZombieCoords());// send zombie coordinates to user;
                     turn = users.get(0).getListNum();
-                    actionMoves = users.get(turn).getSpeed();// set the action moves
+                    actionMoves = users.get(turn-1).getSpeed();// set the action moves
                     return turn;//return the turn for the first player
                 }
             }
         }
 
-        actionMoves = users.get(turn).getSpeed();
+        actionMoves = users.get(turn-1).getSpeed();
         return turn;// if its not the end of all the user's turns just send the next user's turn
     }// end processTurn
 }// end Game class

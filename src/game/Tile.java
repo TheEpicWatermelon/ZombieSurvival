@@ -31,11 +31,15 @@ public class Tile {
 
     /**
      * toString
-     * makes it so when you call tile in a print it will print out it's tile type
+     * makes it so when you call tile in a print it will print out it's tile type, if its grass print a space
      * @return a string with the tile type
      */
     @Override
     public String toString() {
-        return Integer.toString(tileType);
+        if (tileType == 0){
+            return " ";
+        }else {
+            return Integer.toString(tileType);
+        }
     }// end toString
 }// end Tile class
