@@ -8,6 +8,8 @@ import items.Pistol;
 import items.Axe;
 import items.Hammer;
 import zombies.Zombie;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -25,7 +27,7 @@ public class User {
     private int listNum;// user's list number
     private int xCoord;
     private int yCoord;
-    private List<Weapon> inventory;
+    private List<Weapon> inventory = new ArrayList<>();
     private int currentItem = 0;
     private String playerClass;
     private int kills;
