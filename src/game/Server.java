@@ -78,7 +78,7 @@ class Server {
                 client = serverSock.accept();  //wait for connection
                 GUI.appendToConsole("Client Connected - " + client.getLocalAddress());
                 // debug System.out.println("Client connected");
-                if(connectionHandlers.size()>=4 || gameRunning){// if the player count is already at the limit, or game has started, reject the user
+                if( (connectionHandlers.size()>=4) || (gameRunning) ){// if the player count is already at the limit, or game has started, reject the user
                     ConnectionHandler connect = new ConnectionHandler(client);// start connection handler that will disconnect the user
                     Thread t = new Thread(connect);
                     t.start();
@@ -111,7 +111,7 @@ class Server {
      * ConnectionHandler
      * handles a users connection to the server and handles their inputs
      */
-    class ConnectionHandler implements Runnable {
+    static class ConnectionHandler implements Runnable {
         private PrintWriter output; //assign printwriter to network stream
         private BufferedReader input; //Stream for network input
         private Socket client;  //keeps track of the client socket
@@ -197,31 +197,61 @@ class Server {
                             //writeToUsers(GAME_USER_TURN + game.getTurn());// tell whos turn it is
                         }else if(userInput.startsWith(GAME_USER_MOVE)){// process user's inputed move
                             String move = userInput.substring(COMMAND_LEN);// remove the command from the front of the command
-                            int moveType = Integer.parseInt(move.substring(1,2));// get the type of move as the first thing. skip the user number
-                            move = move.substring(2);// substring the move type and user list number;
+                            int moveType = Integer.parseInt(move.substring(0,1));// get the type of move as the first thing. skip the user number
+                            move = move.substring(1);// substring the move type and user list number;
                             if (user.getListNum() != game.getTurn()){// if it is not the user's turn write a fail message
                                 write(GAME_USER_FAILURE);
-                                break;
+                                continue;
                             }
                             if (moveType == 0){// if this is just a move, process it
-                                int indexOfDivider = move.indexOf(';');
-                                int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
-                                move = move.substring(indexOfDivider + 1);// take off the x-coordinate
-                                int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
-                                boolean moved = game.moveUser(user, new Coord(xCoord,yCoord));// run the method, returns true if user can move to coordinates, false if they cant
+                                Coord movement = null;
+                                if (move.equals("w")){
+                                    movement = new Coord(user.getxCoord(),user.getyCoord()-1);// user moves up
+                                }else if (move.equals("d")){
+                                    movement = new Coord(user.getxCoord()+1,user.getyCoord());// user moves right
+                                }else if (move.equals("s")){
+                                    movement = new Coord(user.getxCoord(),user.getyCoord()+1);// user moves down
+                                }else if (move.equals("a")){
+                                    movement = new Coord(user.getxCoord()-1,user.getyCoord());// user moves left
+                                }
+                                if (movement == null){// if the user does not submit valid input, give them a fail move
+                                    write(GAME_USER_FAILURE);
+                                    continue;
+                                }
+                                //int indexOfDivider = move.indexOf(';');
+                                //int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
+                                //move = move.substring(indexOfDivider + 1);// take off the x-coordinate
+                                //int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
+                                //boolean moved = game.moveUser(user, new Coord(xCoord,yCoord));// run the method, returns true if user can move to coordinates, false if they cant
+                                boolean moved = game.moveUser(user, movement);// run the method, returns true if user can move to coordinates, false if they cant
                                 if (moved){// if move was successful
                                     //writeToUsers(GAME_USER_MOVE + user.getListNum() + 0 + xCoord+";"+yCoord);
                                     writeToUsers(GAME_MAP + game.mapToString());
                                 }else {// failed move
                                     write(GAME_USER_FAILURE);
-                                    break;
+                                    continue;
                                 }
                             }else if (moveType == 1){// if this is an attack
-                                int indexOfDivider = move.indexOf(';');
-                                int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
-                                move = move.substring(indexOfDivider + 1);// take off the x-coordinate
-                                int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
-                                boolean attacked = game.userAttack(user, new Coord(xCoord,yCoord));// get if attack was succesful or not
+                                int attackDirection = -1;// 0 - up, 1 - right, 2 - down , 3 - left
+                                if (move.equals("w")){// attack upwards
+                                    attackDirection = 0;
+                                }else if (move.equals("d")){// attack right
+                                    attackDirection = 1;
+                                }else if (move.equals("s")){// attack down
+                                    attackDirection = 2;
+                                }else if (move.equals("a")){// attack left
+                                    attackDirection = 3;
+                                }
+                                if (attackDirection == -1){// if the user does not give a valid direction, give them a failure
+                                    write(GAME_USER_FAILURE);
+                                    continue;
+                                }
+                                //int indexOfDivider = move.indexOf(';');
+                                //int xCoord = Integer.parseInt(move.substring(0,indexOfDivider));// get x coordinate
+                                //move = move.substring(indexOfDivider + 1);// take off the x-coordinate
+                                //int yCoord = Integer.parseInt(move);// the rest of the command is the y coordinate
+                                //boolean attacked = game.userAttack(user, new Coord(xCoord,yCoord));// get if attack was succesful or not
+                                boolean attacked = game.userAttack(user,attackDirection);
                                 if (attacked){// successful attack
                                     //writeToUsers(GAME_USER_MOVE + user.getListNum() + 1 + xCoord +";"+yCoord);
                                     writeToUsers(GAME_MAP + game.mapToString());
@@ -230,7 +260,7 @@ class Server {
                                 }
                             }else{// if user sends incompatible command, send them a fail message
                                 write(GAME_USER_FAILURE);
-                                break;
+                                continue;
                             }
                             int turn = game.processTurn();// give users whos turn it is, if it's the zombie's turn it will process that and then come back to the first user
                             writeToUsers(GAME_MAP + game.mapToString());
@@ -240,9 +270,11 @@ class Server {
                             user.setClass(type);// set class type
                         }else if(userInput.startsWith(GAME_END)){// if user ends the game
                             writeToUsers(GAME_END);
-                            running = false;
-                            gameRunning = false;
-                            game = null;
+                            for (ConnectionHandler handler: connectionHandlers) {// set running to false for all users
+                                handler.running = false;
+                            }
+                            gameRunning = false;// set the gameRunning off
+                            game = null;// kill the game
                         }
                         else {
                             output.println("err Command Not Available");

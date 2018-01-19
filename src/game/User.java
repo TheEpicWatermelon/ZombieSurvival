@@ -1,16 +1,21 @@
 package game;
-
 // imports
-import items.*;
+import items.Weapon;
+import items.Knife;
+import items.Rifle;
+import items.Sword;
+import items.Pistol;
+import items.Axe;
+import items.Hammer;
 import zombies.Zombie;
 import java.util.List;
 import java.util.Random;
 
 /**
  * [game.User.java]
- * holds all the data and game data for a single user
+ * holds all the data for a single user
  * @author Sasha Maximovitch
- * @date December 18th, 2017
+ * @date November 9th, 2017
  */
 
 public class User {
@@ -20,11 +25,11 @@ public class User {
     private int listNum;// user's list number
     private int xCoord;
     private int yCoord;
-    private List<Weapon> inventory;// list of weapons for the inventory
-    private int currentItem = 0;// index of current item in the inventory
-    private String playerClass;// the class type of player
+    private List<Weapon> inventory;
+    private int currentItem = 0;
+    private String playerClass;
     private int kills;
-    private int maxHealth;// the maximum health the player can have
+    private int maxHealth;
     private int upgradePointStatus;// when this reaches 10 an upgrade point is added
     private int upgradePoints;// number of upgrade points
     private Random random = new Random();
@@ -46,11 +51,11 @@ public class User {
     private int quickness = 0;// index 3 when upgrading
     private int building = 0;// index 4 when upgrading
 
-    // Constructor
+    // constructor
     public User(){
     }
 
-    // Constructor that sets name, x and y coords(used for testing)
+    // constructor - Used for tests
     public User(String name, int yCoord, int xCoord){
         this.name = name;
         this.yCoord = yCoord;
@@ -59,10 +64,11 @@ public class User {
 
     /**
      * attackZombie
-     * calculates the outcome for an attack against a zombie
-     * @param zombie - the zombie that is being attacked
-     * @param ranged - if the attack is ranged or not(changes some calculations)
+     * method that calculates the user's attack of a zombie
+     * @param zombie that is being attacked
+     * @param ranged if the attack is ranged
      */
+
     public void attackZombie(Zombie zombie, boolean ranged){
         int randNum;
         if (ranged){// if this is a range attack, check hit chance by range skill
@@ -96,12 +102,12 @@ public class User {
 
     /**
      * heal
-     * adds on to the current health the player has
-     * @param healthGain - the amount of health to be gained
+     * add health to the current health of the user
+     * @param healthGain - amount of health to be gained
      */
     public void heal(int healthGain){
         this.health += healthGain;
-    }// end heal
+    }
 
     /**
      * upgrade
@@ -132,6 +138,8 @@ public class User {
                 building++;
                 crafting+= 5;
                 builder+= 5;
+                break;
+            default:
                 break;
         }
     }// end upgrade
@@ -342,7 +350,6 @@ public class User {
      * user selects a class to be switched to, the appropriate classes default skills will be set, and a weapon will be assigned as well
      * @param classIndex - the index of the class - 0 is scout, 1 is sniper, 2 is thief, 3 is mechanic, 4 is tank
      */
-
     public void setClass(int classIndex){
         if (classIndex == 0){// set scout
             if (inventory.size() == 1){// remove previous item
@@ -416,4 +423,5 @@ public class User {
             inventory.add(new Sword());
         }
     }// end setClass
-}// end User class
+
+}// end UserClass

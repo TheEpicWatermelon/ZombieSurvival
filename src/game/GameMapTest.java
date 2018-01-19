@@ -1,12 +1,10 @@
 package game;
-
-import org.junit.*;
+// imports
+import org.junit.Assert;
+import org.junit.Test;
 import zombies.RegularZombie;
 import zombies.Zombie;
-
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * [GameMapTest.java]

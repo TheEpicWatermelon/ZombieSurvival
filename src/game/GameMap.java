@@ -17,10 +17,10 @@ import java.util.Random;
  */
 public class GameMap {
 
-    private Tile[][] mapTiles = new Tile[50][50];// holds the tiles for the map
+    public Tile[][] mapTiles = new Tile[50][50];// holds the tiles for the map
     // class variables
-    private final int mapXDimension = 50;
-    private final int mapYDimension = 50;
+    public static final int mapXDimension = 50;
+    public static final int mapYDimension = 50;
     private List<User> users = Collections.synchronizedList(new ArrayList<>());
     private List<Zombie> zombies = new ArrayList<>();
     private final Random random = new Random();
@@ -65,7 +65,7 @@ public class GameMap {
 
     /**
      * mapToString
-     * gets the whole map as one long string, this is modified for the simple client version
+     * gets the whole map as one long string
      * @return a string that holds the map
      */
     public String mapToString(){
@@ -77,7 +77,7 @@ public class GameMap {
                     string.append("Z");
                 }else if(isUserOn(j,i)){// if there is a user on that tile, print X
                     string.append("X");
-                }else {// else just print the tile(grass will just be a space)
+                }else {
                     string.append(mapTiles[i][j]);
                 }
             }
@@ -87,13 +87,13 @@ public class GameMap {
 
     /**
      * isZombieOn
-     * takes coordinates and checks if a zombie is on those coordinates
+     * checks if a zombie is on the coordinates
      * @param x
      * @param y
-     * @return true or false depending on if a zombie is on those coordinates
+     * @return true or false if zombie is on
      */
 
-    private boolean isZombieOn(int x, int y) {
+    public boolean isZombieOn(int x, int y) {
         for (Zombie zombie: zombies){
             if ( (zombie.getxCoord() == x) && (zombie.getyCoord() == y) ){
                 return true;
@@ -104,12 +104,12 @@ public class GameMap {
 
     /**
      * isUserOn
-     * takes coordinates and checks if a user is on those coordinates
+     * checks if user is on the coordinates
      * @param x
      * @param y
-     * @return true or false depending on if a user is on those coordinates
+     * @return true or false depending on if the user is on those coordinates
      */
-    private boolean isUserOn(int x, int y) {
+    public boolean isUserOn(int x, int y) {
         for (User user: users){
             if ( (user.getxCoord() == x) && (user.getyCoord() == y) ){
                 return true;
@@ -117,7 +117,6 @@ public class GameMap {
         }
         return false;
     }// end isUserOn
-
 
     /**
      * getZombies
@@ -287,6 +286,8 @@ public class GameMap {
             case 3:
                 spawnXCoordinates = 0;
                 spawnYCoordinates = random.nextInt(mapYDimension);
+                break;
+            default:
                 break;
         }
 
@@ -763,7 +764,7 @@ public class GameMap {
         User closestPlayer = null;
 
         for (User user: users){
-            double distance = Math.sqrt(Math.pow((zombie.getxCoord()-user.getxCoord()),2) + Math.pow((zombie.getyCoord() - user.getyCoord()),2));
+            double distance = Math.sqrt(Math.pow((zombie.getxCoord()-user.getxCoord()),2) + Math.pow((zombie.getyCoord() - user.getyCoord()),2));// get distance
             if (distance < minDistance){
                 closestPlayer = user;
                 minDistance = distance;
@@ -795,7 +796,7 @@ public class GameMap {
         List<User> players = new ArrayList<>();
 
         for(User user: users){
-            if ( (Math.abs(user.getyCoord()-y) <2) && (Math.abs(user.getxCoord()-x) <2)){// check if player is next to that coordinate
+            if ( (Math.abs(user.getyCoord()-y) <2) && (Math.abs(user.getxCoord()-x) <2) ){// check if player is next to that coordinate
                 players.add(user);
             }
         }

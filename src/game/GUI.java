@@ -31,6 +31,7 @@ public class GUI extends JFrame {
     JButton okButton;// button that will send the text from consoleInput to be processed
     String inputText;// text that will hold the text from consoleInput
 
+    // constructor
     GUI(){
         // create window and set it
         super("Console");
@@ -81,7 +82,6 @@ public class GUI extends JFrame {
         this.add(mainPanel);
         // turn on gui
         this.setVisible(true);
-
     }
 
     /**

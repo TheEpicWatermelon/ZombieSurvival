@@ -1,7 +1,7 @@
 package zombies;
 
+// imports
 import game.User;
-
 import java.util.Random;
 
 /**

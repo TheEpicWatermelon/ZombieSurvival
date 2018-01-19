@@ -28,7 +28,6 @@ public class ZombieMove {
             string.append("|");// this symbol means there is an attack
             string.append(attackedPlayer.getListNum());// give which user got attacked
         }
-
         return string.toString();
     }// end toString
 }// end ZombieMove class

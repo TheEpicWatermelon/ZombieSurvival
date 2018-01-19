@@ -105,7 +105,7 @@ public class Game {
             return false;// return attack fail
         }
 
-        double distanceToZombie = Math.sqrt(Math.pow( (user.getxCoord() + attackedZombie.getxCoord()), 2) + Math.pow( (user.getyCoord() + attackedZombie.getyCoord()), 2));// get distance to zombie
+        double distanceToZombie = Math.sqrt(Math.pow( (user.getxCoord() - attackedZombie.getxCoord()), 2) + Math.pow( (user.getyCoord() - attackedZombie.getyCoord()), 2));// get distance to zombie
 
         if (user.getInventory(user.getCurrentItem()).range < distanceToZombie){// check if user with equipped weapon is in range of zombie
             return false;// if not then return attack fail
@@ -131,6 +131,80 @@ public class Game {
         actionMoves--;// decrease actionMoves by one
         return true;// return attack success
     }// end userAttack
+
+    /**
+     * userAttack
+     * used for the simple client, decides if an attack happens or not
+     * @param user that is attacking
+     * @param direction of attack
+     * @return if attack was successful or not
+     */
+    public boolean userAttack(User user, int direction){
+        if (user.getInventory().isEmpty()){// if the user has no weapon, attack fails
+            return false;
+        }
+        int weaponRange = (int)Math.round(user.getInventory(user.getCurrentItem()).range);// get the range of the weapon
+
+        if (direction == 0){// attack up
+            int distanceToBorder = user.getyCoord();// get distance to border
+            int effectiveWeaponDistance = Math.min(weaponRange, distanceToBorder);// get the effective range of the weapon(so that attack does not go out of bounds)
+
+            for (int i = 1; i < effectiveWeaponDistance; i++) {// loop through the effective distance for the attack upwards
+                int x = user.getxCoord();
+                int y = user.getyCoord() - i;
+                if (map.isZombieOn(x,y)){// if there is a zombie on these coordinates, try and attack it
+                    boolean attack = userAttack(user,new Coord(x,y));// attack the zombie
+                    return attack;
+                }else if (map.mapTiles[y][x].getTileType() != 0){// if there is something in the way, attack fails
+                    return false;
+                }
+            }
+        }else if (direction == 1){// attack right
+            int distanceToBorder = (map.mapXDimension-1) - user.getxCoord();// get distance to border
+            int effectiveWeaponDistance = Math.min(weaponRange, distanceToBorder);// get the effective range of the weapon(so that attack does not go out of bounds)
+
+            for (int i = 1; i < effectiveWeaponDistance; i++) {// loop through the effective distance for the attack right
+                int x = user.getxCoord()+i;
+                int y = user.getyCoord();
+                if (map.isZombieOn(x,y)){// if there is a zombie on these coordinates, try to attack it
+                    boolean attack = userAttack(user,new Coord(x,y));// attack the zombie
+                    return attack;
+                }else if (map.mapTiles[y][x].getTileType() != 0){// if there is something in the way, attack fails
+                    return false;
+                }
+            }
+        }else if (direction == 2){// attack down
+            int distanceToBorder = (map.mapYDimension - 1) - user.getyCoord();// get distance to border
+            int effectiveWeaponDistance = Math.min(weaponRange, distanceToBorder);// get the effective range of the weapon(so that attack does not go out of bounds)
+
+            for (int i = 1; i < effectiveWeaponDistance; i++) {// loop through the effective distance for the attack downwards
+                int x = user.getxCoord();
+                int y = user.getyCoord() + i;
+                if (map.isZombieOn(x,y)){// if there is a zombie on these coordinates, try and attack it
+                    boolean attack = userAttack(user,new Coord(x,y));// attack the zombie
+                    return attack;
+                }else if (map.mapTiles[y][x].getTileType() != 0){// if there is something in the way, attack fails
+                    return false;
+                }
+            }
+        }else if (direction == 3){// attack left
+            int distanceToBorder = user.getxCoord();// get distance to border
+            int effectiveWeaponDistance = Math.min(weaponRange, distanceToBorder);// get the effective range of the weapon(so that attack does not go out of bounds)
+
+            for (int i = 1; i < effectiveWeaponDistance; i++) {// loop through the effective distance for the attack left
+                int x = user.getxCoord() - i;
+                int y = user.getyCoord();
+                if (map.isZombieOn(x,y)){// if there is a zombie on these coordinates, try and attack it
+                    boolean attack = userAttack(user,new Coord(x,y));// attack the zombie
+                    return attack;
+                }else if (map.mapTiles[y][x].getTileType() != 0){// if there is something in the way, attack fails
+                    return false;
+                }
+            }
+        }
+
+        return false;// if no zombie is found return false
+    }
 
     /**
      * mapToString
@@ -175,6 +249,7 @@ public class Game {
                 }
                 users = Server.users;// refresh list of users
                 turn = users.get(0).getListNum();// set the turn to the first user
+                actionMoves = users.get(turn).getSpeed();// set the action moves
                 return turn;
             }else{// if all the zombies are dead
                 // reheal all users
@@ -186,11 +261,13 @@ public class Game {
                     zombies = map.getZombies();
                     //Server.connectionHandlers.get(0).writeToUsers(Server.GAME_ZOMBIE_SPAWNS + getZombieCoords());// send zombie coordinates to user;
                     turn = users.get(0).getListNum();
+                    actionMoves = users.get(turn).getSpeed();// set the action moves
                     return turn;//return the turn for the first player
                 }
             }
         }
 
+        actionMoves = users.get(turn).getSpeed();
         return turn;// if its not the end of all the user's turns just send the next user's turn
     }// end processTurn
 }// end Game class
